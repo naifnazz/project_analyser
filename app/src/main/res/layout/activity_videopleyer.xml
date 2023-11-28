@@ -60,6 +60,15 @@
 
             </LinearLayout>
 
+            <Button
+                android:id="@+id/PauseButton"
+                android:layout_width="53dp"
+                android:layout_height="46dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:onClick="onPauseButtonClick"
+                android:text="Pause" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -72,7 +81,7 @@
             <SurfaceView
                 android:id="@+id/videoview"
                 android:layout_width="match_parent"
-                android:layout_height="370dp" />
+                android:layout_height="match_parent" />
 
         </LinearLayout>
 
@@ -86,105 +95,106 @@
                 android:id="@+id/Seekbr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"/>
+                android:max="100"
+                android:progress="0"   />
 
-            <Button
-                android:id="@+id/pauseButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pause"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="16dp"
-                android:onClick="onPauseButtonClick"/>
         </LinearLayout>
 
 
     </LinearLayout>
 
     <LinearLayout
-        android:background="@drawable/border"
         android:layout_width="80dp"
-        android:layout_gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingTop="10dp"
         android:layout_height="match_parent"
-        >
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/border"
+        android:orientation="vertical"
+        android:paddingTop="10dp">
+
         <LinearLayout
             android:layout_width="wrap_content"
-            android:gravity="center"
+            android:layout_height="wrap_content"
 
-            android:layout_margin="5dp"
             android:layout_gravity="center_horizontal"
-            android:padding="3dp"
-            android:background="@drawable/savebtn"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:src="@drawable/logo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:gravity="center"
-
             android:layout_margin="5dp"
-            android:layout_gravity="center_horizontal"
-            android:padding="3dp"
             android:background="@drawable/savebtn"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:src="@drawable/logo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
             android:gravity="center"
+            android:padding="3dp">
 
-            android:layout_margin="5dp"
-            android:layout_gravity="center_horizontal"
-            android:padding="3dp"
-            android:background="@drawable/savebtn"
-            android:layout_height="wrap_content">
             <ImageView
-                android:src="@drawable/logo"
                 android:layout_width="50dp"
-                android:layout_height="50dp"/>
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:gravity="center"
-
-            android:layout_margin="5dp"
-            android:layout_gravity="center_horizontal"
-            android:padding="3dp"
-            android:background="@drawable/savebtn"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:src="@drawable/logo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:gravity="center"
-
-            android:layout_margin="5dp"
-            android:layout_gravity="center_horizontal"
-            android:padding="3dp"
-            android:background="@drawable/savebtn"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:src="@drawable/logo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
+                android:layout_height="50dp"
+                android:src="@drawable/logo" />
 
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:background="@drawable/savebtn"
+            android:gravity="center"
+            android:padding="3dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/logo" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:background="@drawable/savebtn"
+            android:gravity="center"
+            android:padding="3dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/logo" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:background="@drawable/savebtn"
+            android:gravity="center"
+            android:padding="3dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/logo" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:background="@drawable/savebtn"
+            android:gravity="center"
+            android:padding="3dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/logo" />
+
+        </LinearLayout>
 
 
     </LinearLayout>
