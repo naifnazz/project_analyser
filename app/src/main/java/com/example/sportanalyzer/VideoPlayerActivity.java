@@ -1,7 +1,7 @@
 package com.example.sportanalyzer;
 
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
@@ -11,15 +11,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 
 public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -31,17 +32,14 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     private SeekBar seekBar;
     private Handler handler;
     private boolean pause = false;
-    private Button pauseButton;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_videopleyer);
-        SurfaceView surfaceView = findViewById(R.id.videoview);
-        surfaceView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-        surfaceView.setLayerType(SurfaceView.LAYER_TYPE_HARDWARE, null);
-        surfaceView = findViewById(R.id.videoview);
+
+        surfaceView = findViewById(R.id.view);
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
         mediaPlayer = new MediaPlayer();
@@ -53,7 +51,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         seekBar.setMax(100);
         seekBar.setProgress(0);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -99,6 +96,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             mediaPlayer.release();
         }
     }
+
     @Override
     protected void onDestroy () {
         super.onDestroy();
@@ -111,7 +109,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     private void initializeMediaCodec () {
         try {
             mediaExtractor = new MediaExtractor();
-            mediaExtractor.setDataSource("Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI");
+            mediaExtractor.setDataSource("MediaStore.Video.Media.EXTERNAL_CONTENT_URI");
 
             MediaFormat format = mediaExtractor.getTrackFormat(0);
             String mime = format.getString(MediaFormat.KEY_MIME);
@@ -144,7 +142,23 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             handler.postDelayed(this, 1000);
         }
     };
+    private void initializeMediaExtractor() {
+        mediaExtractor = new MediaExtractor();
+        Uri videoUri = getIntent().getData();
 
+        try {
+            mediaExtractor.setDataSource(this, videoUri, null);
+            int numTracks = mediaExtractor.getTrackCount();
+
+            for (int i = 0; i < numTracks; i++) {
+                MediaFormat mediaFormat = mediaExtractor.getTrackFormat(i);
+                // Process the MediaFormat as needed
+                // ...
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void releaseMediaCodec() {
         if (mediaCodec != null) {
             mediaCodec.stop();
@@ -155,22 +169,23 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             mediaExtractor.release();
             mediaExtractor = null;
         }
-    }
 
-    // Toggle between pause and resume
+    };
+
     private void togglePauseResume() {
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            Toast.makeText(this, "Paused", Toast.LENGTH_SHORT).show();
-
-            // Stop updating the seek bar
-            handler.removeCallbacks(updateSeekBar);
+        if (!isFinishing() && mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+                // Stop updating the seek bar
+                handler.removeCallbacks(updateSeekBar);
+            } else {
+                mediaPlayer.start();
+                // Start updating the seek bar again
+                handler.postDelayed(updateSeekBar, 1000);
+            }
         } else {
-            mediaPlayer.start();
-            Toast.makeText(this, "Resumed", Toast.LENGTH_SHORT).show();
-
-            // Start updating the seek bar again
-            handler.postDelayed(updateSeekBar, 1000);
+            // Handle the case where mediaPlayer is null
+            Toast.makeText(this, "Media player not initialized", Toast.LENGTH_SHORT).show();
         }
     }
 
