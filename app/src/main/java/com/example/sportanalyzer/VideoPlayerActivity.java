@@ -1,6 +1,5 @@
 package com.example.sportanalyzer;
-
-import androidx.appcompat.app.AppCompatActivity;
+import com.example.sportanalyzer.spotlightoverlay;
 import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
@@ -16,8 +15,12 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
+import android.view.MotionEvent;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -31,8 +34,9 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     private MediaCodec mediaCodec;
     private SeekBar seekBar;
     private Handler handler;
+    private spotlightoverlay spotlightOverlay;
     private boolean pause = false;
-
+    LinearLayout spotlight;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +48,12 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         surfaceHolder.addCallback(this);
         mediaPlayer = new MediaPlayer();
         seekBar = findViewById(R.id.Seekbr);
+
+        spotlightOverlay = new spotlightoverlay(this, null);
+        addContentView(spotlightOverlay, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+
         Uri videoUri = getIntent().getData();
         try {
             mediaPlayer.setDataSource(this,videoUri);
@@ -73,7 +83,27 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         });
 
         handler = new Handler(Looper.getMainLooper());
+
+         spotlight = findViewById(R.id.spotlight);
+
+        spotlight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                surfaceView.setOnTouchListener(new SurfaceView.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(android.view.View v, MotionEvent event) {
+                        float x = event.getX();
+                        float y = event.getY();
+                        long durationMillis = 5000; // Set the default duration or let the user choose
+                        spotlightOverlay.addSpotlight(x, y, durationMillis);
+                        return true;                    }
+                });            }
+        });
+
+
+
     }
+
 
     @Override
     public void surfaceCreated (SurfaceHolder holder){
@@ -105,6 +135,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             mediaPlayer.release();
         }
     }
+
 
     private void initializeMediaCodec () {
         try {
@@ -142,6 +173,8 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             handler.postDelayed(this, 1000);
         }
     };
+
+
     private void initializeMediaExtractor() {
         mediaExtractor = new MediaExtractor();
         Uri videoUri = getIntent().getData();

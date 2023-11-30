@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SpotlightOverlay extends View {
+public class spotlightoverlay extends View {
 
     private List<Spotlight> spotlights;
     private Paint flamePaint;
     private Paint circlePaint;
     private CountDownTimer timer;
 
-    public SpotlightOverlay(Context context, AttributeSet attrs) {
+    public spotlightoverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -127,3 +127,4 @@ public class SpotlightOverlay extends View {
         }
     }
 }
+
