@@ -1,5 +1,4 @@
 package com.example.sportanalyzer;
-import com.example.sportanalyzer.spotlightoverlay;
 import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.media.MediaCodec;
@@ -10,12 +9,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -23,7 +20,6 @@ import android.widget.Toast;
 import android.view.MotionEvent;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 
 public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -205,21 +201,25 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
     };
 
-    private void togglePauseResume() {
-        if (!isFinishing() && mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                // Stop updating the seek bar
-                handler.removeCallbacks(updateSeekBar);
+    void togglePauseResume() {
+        try{
+
+
+            if (!isFinishing() && mediaPlayer != null) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    // Stop updating the seek bar
+                    //   handler.removeCallbacks(updateSeekBar);
+                } else {
+                    mediaPlayer.start();
+                    // Start updating the seek bar again
+                    //  handler.postDelayed(updateSeekBar, 1000);
+                }
             } else {
-                mediaPlayer.start();
-                // Start updating the seek bar again
-                handler.postDelayed(updateSeekBar, 1000);
+                // Handle the case where mediaPlayer is null
+                Toast.makeText(this, "Media player not initialized", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            // Handle the case where mediaPlayer is null
-            Toast.makeText(this, "Media player not initialized", Toast.LENGTH_SHORT).show();
-        }
+        }catch (Exception e){}
     }
 
     // Example: Pause on button click
