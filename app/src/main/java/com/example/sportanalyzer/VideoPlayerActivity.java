@@ -1,7 +1,11 @@
 package com.example.sportanalyzer;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -32,11 +36,14 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     private MediaCodec mediaCodec;
     private SeekBar seekBar;
     private Handler handler;
-    private spotlightoverlay spotlightoverlay;
-    private PlayerFormationOverlay PlayerFormationOverlay;
+    SpotlightHologram spotlightHologram;
+
+
     private boolean pause = false;
-    LinearLayout spotlight,formationline;
-    @SuppressLint("MissingInflatedId")
+    LinearLayout spotlight_btn;
+
+    @SuppressLint({"MissingInflatedId","ClickableViewAccessibility"})
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,21 +57,36 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         mediaPlayer = new MediaPlayer();
         seekBar = findViewById(R.id.Seekbr);
         surfaceView.setLayerType(SurfaceView.LAYER_TYPE_HARDWARE, null);
-        PlayerFormationOverlay = new PlayerFormationOverlay(this, null);
-        PlayerFormationOverlay.addPlayer(100, 100);
+        Bitmap bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.spotlight_icon_btn);;
 
-        spotlightoverlay = new spotlightoverlay(this, null);
-        addContentView(spotlightoverlay, new FrameLayout.LayoutParams(
+        spotlightHologram = new SpotlightHologram(this,bitmap);
+        spotlightHologram.setHologramXY(300,300);
+        spotlightHologram.setBitmap(bitmap);
+
+        addContentView(spotlightHologram, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
 
         Uri videoUri = getIntent().getData();
         try {
-            mediaPlayer.setDataSource(this,videoUri);
+            mediaPlayer.setDataSource(this, videoUri);
             mediaPlayer.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        surfaceView.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float xpoint=   event.getX();
+                float ypoint =   event.getY();
+                Toast.makeText(VideoPlayerActivity.this, xpoint+" "+ypoint, Toast.LENGTH_SHORT).show();
+                spotlightHologram.setHologramXY(xpoint,ypoint);
+                return false;
+            }
+        });
+
+
         seekBar.setMax(100);
         seekBar.setProgress(0);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -88,36 +110,10 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
         handler = new Handler(Looper.getMainLooper());
 
-        spotlight = findViewById(R.id.spotlight);
+        spotlight_btn = findViewById(R.id.spotlight);
 
-        spotlight.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                surfaceView.setOnTouchListener(new SurfaceView.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(android.view.View v, MotionEvent event) {
-                        float x = event.getX();
-                        float y = event.getY();
-                        long durationMillis = 5000; // Set the default duration or let the user choose
-                        spotlightoverlay.addSpotlight(x, y, durationMillis);
-                        return true;                    }
-                });            }
-        });
-        formationline = findViewById(R.id.formationline);
-        formationline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                surfaceView.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        float x = event.getX();
-                        float y = event.getY();
-                        PlayerFormationOverlay.addPlayer(x, y);
-                        return true;
+        spotlight_btn.setOnClickListener(view -> {
 
-                    }
-
-                });            }
         });
 
 
@@ -125,7 +121,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
 
     @Override
-    public void surfaceCreated (SurfaceHolder holder){
+    public void surfaceCreated(SurfaceHolder holder) {
         mediaPlayer.setDisplay(holder);
 
         mediaPlayer.start();
@@ -134,12 +130,12 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     }
 
     @Override
-    public void surfaceChanged (SurfaceHolder holder,int format, int width, int height){
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         // Handle surface changes if needed
     }
 
     @Override
-    public void surfaceDestroyed (SurfaceHolder holder){
+    public void surfaceDestroyed(SurfaceHolder holder) {
         // Release MediaPlayer when the surface is destroyed
         if (mediaPlayer != null) {
             mediaPlayer.release();
@@ -147,7 +143,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     }
 
     @Override
-    protected void onDestroy () {
+    protected void onDestroy() {
         super.onDestroy();
         // Release MediaPlayer when the activity is destroyed
         if (mediaPlayer != null) {
@@ -156,7 +152,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     }
 
 
-    private void initializeMediaCodec () {
+    private void initializeMediaCodec() {
         try {
             mediaExtractor = new MediaExtractor();
             mediaExtractor.setDataSource("MediaStore.Video.Media.EXTERNAL_CONTENT_URI");
@@ -173,12 +169,10 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     }
 
 
-
-
     private void seekTo(int position) {
 
-        long fullduration=mediaPlayer.getDuration();
-        int cal=(int)(fullduration* (position/100.0));
+        long fullduration = mediaPlayer.getDuration();
+        int cal = (int) (fullduration * (position / 100.0));
 
         runOnUiThread(() -> mediaPlayer.seekTo(cal));
 
@@ -211,6 +205,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             e.printStackTrace();
         }
     }
+
     private void releaseMediaCodec() {
         if (mediaCodec != null) {
             mediaCodec.stop();
@@ -222,10 +217,12 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             mediaExtractor = null;
         }
 
-    };
+    }
+
+    ;
 
     void togglePauseResume() {
-        try{
+        try {
 
 
             if (!isFinishing() && mediaPlayer != null) {
@@ -242,7 +239,8 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 // Handle the case where mediaPlayer is null
                 Toast.makeText(this, "Media player not initialized", Toast.LENGTH_SHORT).show();
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
     // Example: Pause on button click

@@ -123,7 +123,11 @@
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/logo" />
+                android:scaleType="centerCrop"
+                android:padding="5dp"
+                android:tint="@color/white"
+
+                android:src="@drawable/spotlight_icon_btn" />
 
         </LinearLayout>
 
