@@ -1,3 +1,5 @@
+package com.example.sportanalyzer;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -11,14 +13,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SpotlightOverlay extends View {
+public class spotlightoverlay extends View {
 
     private List<Spotlight> spotlights;
     private Paint flamePaint;
     private Paint circlePaint;
     private CountDownTimer timer;
 
-    public SpotlightOverlay(Context context, AttributeSet attrs) {
+    public spotlightoverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -26,13 +28,17 @@ public class SpotlightOverlay extends View {
     private void init() {
         spotlights = new ArrayList<>();
 
-        flamePaint = new Paint();
-        flamePaint.setColor(Color.YELLOW); // Adjust the flame color as needed
-        flamePaint.setStyle(Paint.Style.FILL);
+        flamePaint = new Paint();  // Initialize flamePaint
+        flamePaint.setColor(Color.parseColor("#80FFFFFF")); // White color with 50% opacity
+        flamePaint.setStrokeWidth(5); // Adjust the flame stroke width as needed
+        flamePaint.setStyle(Paint.Style.STROKE); // Set paint style to stroke for the thin cylindrical light
 
-        circlePaint = new Paint();
-        circlePaint.setColor(Color.RED); // Adjust the circle color as needed
+        circlePaint = new Paint();  // Initialize circlePaint
+        circlePaint.setColor(Color.parseColor("#80FFFFFF")); // White color with 50% opacity
+        circlePaint.setAlpha(100); // Adjust alpha value for the circle paint
         circlePaint.setStyle(Paint.Style.FILL);
+
+        // Rest of the init method...
 
         // Dummy timer for illustration, you may need to manage multiple timers based on spotlights
         timer = new CountDownTimer(Long.MAX_VALUE, 16) {
@@ -71,7 +77,7 @@ public class SpotlightOverlay extends View {
 
             canvas.save();
             canvas.rotate(spotlight.getCircleRotation(), centerX, centerY);
-            canvas.drawCircle(centerX, centerY, 50, circlePaint); // Assuming circle radius is 50
+            canvas.drawCircle(centerX, centerY, 20, circlePaint); // Assuming circle radius is 50
             canvas.restore();
 
             spotlight.decrementDuration();
@@ -125,3 +131,5 @@ public class SpotlightOverlay extends View {
         }
     }
 }
+
+

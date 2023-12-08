@@ -1,8 +1,7 @@
 package com.example.sportanalyzer;
-
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -11,16 +10,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
+import android.view.MotionEvent;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 
 public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -31,19 +32,32 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     private MediaCodec mediaCodec;
     private SeekBar seekBar;
     private Handler handler;
+    private spotlightoverlay spotlightoverlay;
+    private PlayerFormationOverlay PlayerFormationOverlay;
     private boolean pause = false;
-
+    LinearLayout spotlight,formationline;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_videopleyer);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         surfaceView = findViewById(R.id.view);
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
         mediaPlayer = new MediaPlayer();
         seekBar = findViewById(R.id.Seekbr);
+        surfaceView.setLayerType(SurfaceView.LAYER_TYPE_HARDWARE, null);
+        PlayerFormationOverlay = new PlayerFormationOverlay(this, null);
+        PlayerFormationOverlay.addPlayer(100, 100);
+
+        spotlightoverlay = new spotlightoverlay(this, null);
+        addContentView(spotlightoverlay, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+
         Uri videoUri = getIntent().getData();
         try {
             mediaPlayer.setDataSource(this,videoUri);
@@ -73,7 +87,42 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         });
 
         handler = new Handler(Looper.getMainLooper());
+
+        spotlight = findViewById(R.id.spotlight);
+
+        spotlight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                surfaceView.setOnTouchListener(new SurfaceView.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(android.view.View v, MotionEvent event) {
+                        float x = event.getX();
+                        float y = event.getY();
+                        long durationMillis = 5000; // Set the default duration or let the user choose
+                        spotlightoverlay.addSpotlight(x, y, durationMillis);
+                        return true;                    }
+                });            }
+        });
+        formationline = findViewById(R.id.formationline);
+        formationline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                surfaceView.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        float x = event.getX();
+                        float y = event.getY();
+                        PlayerFormationOverlay.addPlayer(x, y);
+                        return true;
+
+                    }
+
+                });            }
+        });
+
+
     }
+
 
     @Override
     public void surfaceCreated (SurfaceHolder holder){
@@ -105,6 +154,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             mediaPlayer.release();
         }
     }
+
 
     private void initializeMediaCodec () {
         try {
@@ -142,6 +192,8 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             handler.postDelayed(this, 1000);
         }
     };
+
+
     private void initializeMediaExtractor() {
         mediaExtractor = new MediaExtractor();
         Uri videoUri = getIntent().getData();
@@ -172,21 +224,25 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
     };
 
-    private void togglePauseResume() {
-        if (!isFinishing() && mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                // Stop updating the seek bar
-                handler.removeCallbacks(updateSeekBar);
+    void togglePauseResume() {
+        try{
+
+
+            if (!isFinishing() && mediaPlayer != null) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    // Stop updating the seek bar
+                    //   handler.removeCallbacks(updateSeekBar);
+                } else {
+                    mediaPlayer.start();
+                    // Start updating the seek bar again
+                    //  handler.postDelayed(updateSeekBar, 1000);
+                }
             } else {
-                mediaPlayer.start();
-                // Start updating the seek bar again
-                handler.postDelayed(updateSeekBar, 1000);
+                // Handle the case where mediaPlayer is null
+                Toast.makeText(this, "Media player not initialized", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            // Handle the case where mediaPlayer is null
-            Toast.makeText(this, "Media player not initialized", Toast.LENGTH_SHORT).show();
-        }
+        }catch (Exception e){}
     }
 
     // Example: Pause on button click
