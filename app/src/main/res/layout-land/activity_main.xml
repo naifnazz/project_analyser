@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:background="@color/darkgunmental"
     tools:context=".MainActivity"
-    tools:ignore="MissingDefaultResource">
+   >
 
 
     <LinearLayout
         android:id="@+id/importbtn"
+        android:layout_margin="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -20,6 +22,7 @@
         android:paddingHorizontal="20dp">
 
         <TextView
+            android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingHorizontal="5dp"
@@ -45,6 +48,7 @@
         android:paddingHorizontal="20dp">
 
         <TextView
+            android:textColor="@color/white"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingHorizontal="5dp"

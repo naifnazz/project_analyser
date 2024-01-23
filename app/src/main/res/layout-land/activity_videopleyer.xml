@@ -9,7 +9,7 @@
     tools:context=".VideoPlayerActivity">
 
 
->
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,6 +18,7 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/topbar"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="@drawable/border"
@@ -75,16 +76,64 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal">
 
-            <SurfaceView
-                android:id="@+id/view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <SurfaceView
+        android:id="@+id/videosurfaceview"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <SurfaceView
+        android:visibility="gone"
+        android:id="@+id/graphicssurfaceview"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <LinearLayout
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="10dp"
+        android:gravity="center_vertical"
+        android:layout_gravity="bottom|end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/playbtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/play_circle"/>
+        <ImageView
+            android:id="@+id/drawframebtn"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/bionocular"
+            app:tint="@color/white" />
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/drawsave"
+        android:visibility="gone"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+         android:layout_margin="10dp"
+        android:src="@drawable/done"/>
+</FrameLayout>
+
+
 
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/seekbarlayout"
+            android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="34dp"
             android:background="@drawable/border"
@@ -104,6 +153,7 @@
 
     <LinearLayout
         android:layout_width="80dp"
+        android:id="@+id/toolslayout"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/border"
@@ -125,9 +175,9 @@
                 android:layout_height="50dp"
                 android:scaleType="centerCrop"
                 android:padding="5dp"
-                android:tint="@color/white"
 
-                android:src="@drawable/spotlight_icon_btn" />
+                android:src="@drawable/spotlight_icon_btn"
+                app:tint="@color/white" />
 
         </LinearLayout>
 

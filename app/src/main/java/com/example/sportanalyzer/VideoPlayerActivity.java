@@ -1,25 +1,32 @@
 package com.example.sportanalyzer;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -30,18 +37,21 @@ import java.io.IOException;
 
 public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     private MediaPlayer mediaPlayer;
-    private SurfaceView surfaceView;
-    private SurfaceHolder surfaceHolder;
-    private MediaExtractor mediaExtractor;
-    private MediaCodec mediaCodec;
+    private SurfaceView videoSurfaceView;
+    SurfaceHolder videoHolder,graphicsHolder;
+    SurfaceView graphicsSurfaceView;
+    LinearLayout topBarLayout,seekbarLayout,toolsLayout;
+
     private SeekBar seekBar;
     private Handler handler;
-    SpotlightHologram spotlightHologram;
+    ImageView playBtn,drawBtn,drawSaveBtn;
+
 
 
     private boolean pause = false;
     LinearLayout spotlight_btn;
-
+  boolean isplaying=false;
+  boolean isdrawingMode=false;
     @SuppressLint({"MissingInflatedId","ClickableViewAccessibility"})
 
     @Override
@@ -51,21 +61,104 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        surfaceView = findViewById(R.id.view);
-        surfaceHolder = surfaceView.getHolder();
-        surfaceHolder.addCallback(this);
+         videoSurfaceView = findViewById(R.id.videosurfaceview);
+         graphicsSurfaceView=findViewById(R.id.graphicssurfaceview);
+         playBtn=findViewById(R.id.playbtn);
+         toolsLayout=findViewById(R.id.toolslayout);
+         drawBtn=findViewById(R.id.drawframebtn);
+         topBarLayout=findViewById(R.id.topbar);
+         drawSaveBtn=findViewById(R.id.drawsave);
+         seekbarLayout=findViewById(R.id.seekbarlayout);
+        videoHolder= videoSurfaceView.getHolder();
+        graphicsHolder= graphicsSurfaceView.getHolder();
+        videoHolder.addCallback(this);
+        graphicsHolder.addCallback(this);
+
+        playBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isplaying){
+                    if(mediaPlayer!=null){
+                        mediaPlayer.start();
+                        playBtn.setImageResource(R.drawable.pause_circle);
+                        isplaying=true;
+                    }
+
+                }else{
+                    if(mediaPlayer!=null){
+                        mediaPlayer.pause();
+                        playBtn.setImageResource(R.drawable.play_circle);
+                        isplaying=false;
+                    }
+                }
+            }
+        });
+
+
+        drawBtn.setOnClickListener(v -> {
+            if(!isdrawingMode){
+                if(mediaPlayer!=null){
+
+                    currentFrameMilli  =mediaPlayer.getCurrentPosition();
+                    mediaPlayer.pause();
+
+                    graphicsSurfaceView.setVisibility(VISIBLE);
+                    seekbarLayout.setVisibility(GONE);
+                    topBarLayout.setVisibility(GONE);
+                    playBtn.setVisibility(GONE);
+                    drawBtn.setVisibility(GONE);
+                    toolsLayout.setBackground(new ColorDrawable(Color.TRANSPARENT));
+                    drawSaveBtn.setVisibility(VISIBLE);
+
+                }
+
+            }
+        });
+
+        drawSaveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                graphicsSurfaceView.setVisibility(GONE);
+              //  videoSurfaceView.setVisibility(VISIBLE);
+                mediaPlayer.release();
+                mediaPlayer=null;
+                mediaPlayer=new MediaPlayer();
+                Uri videoUri = getIntent().getData();
+                try {
+                    mediaPlayer.setDataSource(getApplicationContext(), videoUri);
+                    mediaPlayer.setDisplay(videoSurfaceView.getHolder());
+                    mediaPlayer.prepare();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                seekbarLayout.setVisibility(VISIBLE);
+                topBarLayout.setVisibility(VISIBLE);
+                playBtn.setVisibility(VISIBLE);
+                drawBtn.setVisibility(VISIBLE);
+                toolsLayout.setBackground(getDrawable(R.drawable.border));
+                drawSaveBtn.setVisibility(GONE);
+            }
+        });
+
         mediaPlayer = new MediaPlayer();
         seekBar = findViewById(R.id.Seekbr);
-        surfaceView.setLayerType(SurfaceView.LAYER_TYPE_HARDWARE, null);
-        Bitmap bitmap= BitmapFactory.decodeResource(getResources(), R.drawable.spotlight_icon_btn);;
 
-        spotlightHologram = new SpotlightHologram(this,bitmap);
-        spotlightHologram.setHologramXY(300,300);
-        spotlightHologram.setBitmap(bitmap);
 
-        addContentView(spotlightHologram, new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT));
+
+
+
+        videoSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                return true;
+            }
+        });
+
+
+
 
         Uri videoUri = getIntent().getData();
         try {
@@ -74,17 +167,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         } catch (IOException e) {
             e.printStackTrace();
         }
-        surfaceView.setOnTouchListener(new View.OnTouchListener() {
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                float xpoint=   event.getX();
-                float ypoint =   event.getY();
-                Toast.makeText(VideoPlayerActivity.this, xpoint+" "+ypoint, Toast.LENGTH_SHORT).show();
-                spotlightHologram.setHologramXY(xpoint,ypoint);
-                return false;
-            }
-        });
 
 
         seekBar.setMax(100);
@@ -110,28 +193,59 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
         handler = new Handler(Looper.getMainLooper());
 
-        spotlight_btn = findViewById(R.id.spotlight);
 
-        spotlight_btn.setOnClickListener(view -> {
-
-        });
 
 
     }
+    long currentFrameMilli;
 
+    private Bitmap extractFrame(String videoPath, long timeInMillis) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
+        try {
+            retriever.setDataSource(videoPath);
+
+            // Get the frame at the specified time
+            Bitmap frameBitmap = retriever.getFrameAtTime(timeInMillis * 1000, MediaMetadataRetriever.OPTION_CLOSEST);
+            retriever.release();
+            return frameBitmap;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+    boolean issurfaceInit=false;
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        mediaPlayer.setDisplay(holder);
 
-        mediaPlayer.start();
+
+
+
+        if(holder.getSurface()==videoSurfaceView.getHolder().getSurface()){
+           message("video surfaceview");
+           if(!issurfaceInit){
+               mediaPlayer.setDisplay(holder);
+               issurfaceInit=true;
+           }
+
+
+        }else{
+            message("graphics surfaceview");
+
+        }
 
 
     }
 
+    private  void message(String mes){
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(VideoPlayerActivity.this, mes, Toast.LENGTH_SHORT).show());
+    }
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         // Handle surface changes if needed
+
     }
 
     @Override
@@ -152,21 +266,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     }
 
 
-    private void initializeMediaCodec() {
-        try {
-            mediaExtractor = new MediaExtractor();
-            mediaExtractor.setDataSource("MediaStore.Video.Media.EXTERNAL_CONTENT_URI");
 
-            MediaFormat format = mediaExtractor.getTrackFormat(0);
-            String mime = format.getString(MediaFormat.KEY_MIME);
-            mediaCodec = MediaCodec.createDecoderByType(mime);
-            Surface surface = null;
-            mediaCodec.configure(format, surface, null, 0);
-            mediaCodec.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void seekTo(int position) {
@@ -178,48 +278,12 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
     }
 
-    private Runnable updateSeekBar = new Runnable() {
-        @Override
-        public void run() {
-            int currentPosition = (int) mediaExtractor.getSampleTime() / 1000; // Convert to milliseconds
-            seekBar.setProgress(currentPosition);
-            handler.postDelayed(this, 1000);
-        }
-    };
 
 
-    private void initializeMediaExtractor() {
-        mediaExtractor = new MediaExtractor();
-        Uri videoUri = getIntent().getData();
 
-        try {
-            mediaExtractor.setDataSource(this, videoUri, null);
-            int numTracks = mediaExtractor.getTrackCount();
 
-            for (int i = 0; i < numTracks; i++) {
-                MediaFormat mediaFormat = mediaExtractor.getTrackFormat(i);
-                // Process the MediaFormat as needed
-                // ...
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    private void releaseMediaCodec() {
-        if (mediaCodec != null) {
-            mediaCodec.stop();
-            mediaCodec.release();
-            mediaCodec = null;
-        }
-        if (mediaExtractor != null) {
-            mediaExtractor.release();
-            mediaExtractor = null;
-        }
 
-    }
-
-    ;
 
     void togglePauseResume() {
         try {
