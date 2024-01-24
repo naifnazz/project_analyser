@@ -72,53 +72,53 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-<FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <SurfaceView
-        android:id="@+id/videosurfaceview"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:clickable="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-    <SurfaceView
-        android:visibility="gone"
-        android:id="@+id/graphicssurfaceview"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:clickable="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-    <LinearLayout
-        android:layout_marginBottom="20dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center_vertical"
-        android:layout_gravity="bottom|end"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:id="@+id/playbtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/play_circle"/>
-        <ImageView
-            android:id="@+id/drawframebtn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/bionocular"
-            app:tint="@color/white" />
-    </LinearLayout>
-    <ImageView
-        android:id="@+id/drawsave"
-        android:visibility="gone"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="end"
-         android:layout_margin="10dp"
-        android:src="@drawable/done"/>
-</FrameLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <SurfaceView
+                    android:id="@+id/videosurfaceview"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:clickable="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+                <SurfaceView
+                    android:visibility="gone"
+                    android:id="@+id/graphicssurfaceview"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:clickable="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+                <LinearLayout
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginRight="10dp"
+                    android:gravity="center_vertical"
+                    android:layout_gravity="bottom|end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:id="@+id/playbtn"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/play_circle"/>
+                    <ImageView
+                        android:id="@+id/drawframebtn"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/bionocular"
+                        app:tint="@color/white" />
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/drawsave"
+                    android:visibility="gone"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:layout_margin="10dp"
+                    android:src="@drawable/done"/>
+            </FrameLayout>
 
 
 
@@ -159,7 +159,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_margin="5dp"
-             android:background="@drawable/savebtn"
+            android:background="@drawable/savebtn"
             android:gravity="center"
             android:padding="3dp">
 
@@ -227,10 +227,6 @@
                 android:src="@drawable/baseline_arrow_right_alt_24" />
 
         </LinearLayout>
-        <ImageView
-            android:layout_width="0dp"
-            android:id="@+id/dummyimageview"
-            android:layout_height="0dp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
