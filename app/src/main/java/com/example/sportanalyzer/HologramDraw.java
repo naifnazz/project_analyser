@@ -73,7 +73,7 @@ public class HologramDraw {
         // Draw the bitmap to the canvas at the specified coordinates
         if (hologram.bitmap != null) {
             float left = hologram.x - hologram.bitmap.getWidth() / 2f;
-            float top = hologram.y - hologram.bitmap.getHeight();
+            float top = hologram.y - hologram.bitmap.getHeight()+20;
             canvas.drawBitmap(hologram.bitmap, left, top, new Paint());
         }
     }

@@ -5,62 +5,138 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:background="@color/darkgunmental"
+
     tools:context=".MainActivity"
-   >
+    tools:ignore="MissingDefaultResource">
 
 
     <LinearLayout
-        android:id="@+id/importbtn"
-        android:layout_margin="20dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@drawable/savebtn"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="20dp">
+        android:layout_height="250dp"
+        android:orientation="horizontal">
 
-        <TextView
-            android:textColor="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="5dp"
-            android:text="import"
-            android:textSize="20sp" />
+        <LinearLayout
+            android:layout_width="337dp"
+            android:layout_height="200dp"
+            android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/arrowdown" />
+            <LinearLayout
+                android:id="@+id/importbtn"
+                android:layout_width="317dp"
+                android:layout_height="174dp"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:background="@drawable/first_btn_bg"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="5dp"
+                    android:text="import"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/arrowdown" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/foottac"
+                android:layout_width="215dp"
+                android:layout_height="92dp"
+                android:layout_gravity="center"
+                android:background="@drawable/third_btn_bg"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="5dp"
+                    android:text="foottac"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/arrowdown" />
+
+
+            </LinearLayout>
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/foottac"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@drawable/savebtn"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="20dp">
+        <LinearLayout
+            android:layout_width="348dp"
+            android:layout_height="437dp"
+            android:orientation="vertical">
 
-        <TextView
-            android:textColor="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="5dp"
-            android:text="foottac"
-            android:textSize="20sp" />
+            <LinearLayout
 
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/arrowdown" />
+                android:layout_width="321dp"
+                android:layout_height="170dp"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:background="@drawable/second_btn_bg"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="5dp"
+                    android:text="import"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/arrowdown" />
 
 
-    </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+
+                android:layout_width="187dp"
+                android:layout_height="238dp"
+                android:layout_gravity="center"
+                android:background="@drawable/fourth_btn_bg"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="5dp"
+                    android:text="foottac"
+                    android:textColor="@color/white"
+                    android:textSize="20sp" />
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/arrowdown" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
 </LinearLayout>
+
+
 

@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/darkgunmental"
     android:orientation="horizontal"
-    tools:context=".VideoPlayerActivity">
+    tools:context=".VideoPlayerActivity"
+    tools:ignore="MissingDefaultResource">
 
 
 
@@ -20,8 +21,8 @@
         <LinearLayout
             android:id="@+id/topbar"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@drawable/border"
+            android:layout_height="29dp"
+
             android:orientation="horizontal">
 
 
@@ -50,16 +51,14 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="5dp"
                     android:text="save"
-                    android:textSize="20sp"/>
+                    android:textSize="20sp" />
 
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:src="@android:drawable/ic_menu_save"
-                    />
+                    android:src="@android:drawable/ic_menu_save" />
 
             </LinearLayout>
-
 
 
         </LinearLayout>
@@ -118,6 +117,43 @@
         android:layout_gravity="end"
          android:layout_margin="10dp"
         android:src="@drawable/done"/>
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_gravity="bottom|center"
+        android:layout_width="match_parent"
+        android:background="@drawable/border"
+        android:id="@+id/editextlayout"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <EditText
+             android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:id="@+id/edittext"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:id="@+id/edittextokbtn"
+            android:layout_height="40dp"
+            android:src="@drawable/done"/>
+
+    </LinearLayout>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:id="@+id/undo"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginVertical="10dp"
+        android:layout_marginHorizontal="80dp"
+        android:src="@drawable/baseline_undo_24"/>
+    <ImageView
+        android:layout_width="0dp"
+
+        android:src="@color/white"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/dummyimageview"
+        android:layout_height="0dp"/>
+
+
 </FrameLayout>
 
 
@@ -129,8 +165,9 @@
             android:gravity="center_vertical"
             android:layout_width="match_parent"
             android:layout_height="34dp"
-            android:background="@drawable/border"
+
             android:orientation="horizontal">
+
 
             <SeekBar
                 android:id="@+id/Seekbr"
@@ -149,7 +186,7 @@
         android:id="@+id/toolslayout"
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/border"
+
         android:orientation="vertical"
         android:paddingTop="10dp">
 
@@ -227,10 +264,7 @@
                 android:src="@drawable/baseline_arrow_right_alt_24" />
 
         </LinearLayout>
-        <ImageView
-            android:layout_width="0dp"
-            android:id="@+id/dummyimageview"
-            android:layout_height="0dp"/>
+
 
         <LinearLayout
             android:layout_width="wrap_content"
