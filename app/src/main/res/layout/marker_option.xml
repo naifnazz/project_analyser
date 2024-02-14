@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:background="@color/darkgunmental"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/default_marker"
+
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/markerligo"
+                app:tint="#F8F3F8"/>
+
+            <ImageView
+                android:id="@+id/roud_marker"
+
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/roundmarker"
+                app:tint="#F8F3F8" />
+
+            <ImageView
+                android:id="@+id/cross_marker"
+
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/crossmarker"
+                app:tint="#F8F3F8" />
+
+            <ImageView
+                android:id="@+id/cuircle_marker"
+
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/curclemarker"
+                app:tint="#F8F3F8" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

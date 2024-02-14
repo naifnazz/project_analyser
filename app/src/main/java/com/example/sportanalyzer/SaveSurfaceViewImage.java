@@ -1,56 +1,66 @@
 package com.example.sportanalyzer;
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Environment;
-import android.view.SurfaceView;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+
+// ... (existing imports)
 
 public class SaveSurfaceViewImage {
 
-    public static void saveSurfaceViewAsImage(Context context, SurfaceView surfaceView) {
-        // Create a Bitmap to hold the content of the SurfaceView
-        Bitmap bitmap = Bitmap.createBitmap(surfaceView.getWidth(), surfaceView.getHeight(), Bitmap.Config.ARGB_8888);
+    public static void saveCanvasAsJpeg(Context context, Bitmap bitmap, String fileName) {
+        // Check if external storage is available
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            // Get the directory for the app's private pictures directory
+            File picturesDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
 
-        // Create a Canvas with the Bitmap
-        Canvas canvas = new Canvas(bitmap);
+            // Create a file in the pictures directory with the given fileName
+            File file = new File(picturesDirectory, fileName + ".jpg");
 
-        // Draw the content of the SurfaceView onto the Canvas
-        surfaceView.draw(canvas);
+            // Using ContentValues to insert the image into the MediaStore
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES);
 
-        // Save the Bitmap as a JPEG file
-        saveBitmapAsJPEG(context, bitmap);
-    }
+            try {
+                Uri contentUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+                Uri imageUri = context.getContentResolver().insert(contentUri, values);
 
-    public static void saveBitmapAsJPEG(Context context, Bitmap bitmap) {
-        // Get the external storage directory
-        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-
-        // Create a unique filename for the JPEG image
-        String fileName = "surface_view_image"+(int)(Math.random()*100000)+".jpg";
-
-        // Create a File object for the image
-        File imageFile = new File(directory, fileName);
-
-        try {
-            // Create a FileOutputStream for the image file
-            FileOutputStream fos = new FileOutputStream(imageFile);
-
-            // Compress the Bitmap as JPEG with quality 100 (maximum)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-
-            // Close the FileOutputStream
-            fos.close();
-
-            // Notify the user that the image has been saved
-            Toast.makeText(context, "Image saved successfully", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Error saving image", Toast.LENGTH_SHORT).show();
+                if (imageUri != null) {
+                    try (OutputStream outputStream = context.getContentResolver().openOutputStream(imageUri)) {
+                        // Save the Bitmap as a JPEG file
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                        Toast.makeText(context, "Image saved", Toast.LENGTH_SHORT).show();
+                        Log.i("SaveSurfaceViewImage", "Image saved");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(context, "Error saving image", Toast.LENGTH_SHORT).show();
+                        Log.e("SaveSurfaceViewImage", "Error saving image: " + e.getMessage());
+                    }
+                } else {
+                    Toast.makeText(context, "Error creating image entry", Toast.LENGTH_SHORT).show();
+                    Log.e("SaveSurfaceViewImage", "Error creating image entry");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(context, "Error inserting image into MediaStore", Toast.LENGTH_SHORT).show();
+                Log.e("SaveSurfaceViewImage", "Error inserting image into MediaStore: " + e.getMessage());
+            }
+        } else {
+            // Handle the case where external storage is not available
+            // This may include using internal storage or notifying the user
+            Toast.makeText(context, "External storage not available", Toast.LENGTH_SHORT).show();
+            Log.e("SaveSurfaceViewImage", "External storage not available");
         }
     }
 }

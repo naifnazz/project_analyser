@@ -1,5 +1,6 @@
 package com.example.sportanalyzer;
 
+import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -38,6 +39,7 @@ public class footballtac extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setTouchListener(final ImageView playerIcon, final boolean isRed, final int index) {
         playerIcon.setOnTouchListener(new View.OnTouchListener() {
             @Override

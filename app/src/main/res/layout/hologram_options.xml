@@ -15,14 +15,14 @@
 
             <ImageView
                 android:id="@+id/default_hologram"
-                android:background="@drawable/border"
+
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/spotlight_icon_btn" />
 
             <ImageView
                 android:id="@+id/yellow_hologram"
-                android:background="@drawable/border"
+
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/spotlight_icon_btn"
@@ -30,7 +30,7 @@
 
             <ImageView
                 android:id="@+id/white_hologram"
-                android:background="@drawable/border"
+
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/spotlight_icon_btn"
@@ -38,7 +38,7 @@
 
             <ImageView
                 android:id="@+id/blue_hologram"
-                android:background="@drawable/border"
+
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/spotlight_icon_btn"

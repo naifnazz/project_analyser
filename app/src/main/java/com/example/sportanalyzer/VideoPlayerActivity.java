@@ -3,49 +3,44 @@ package com.example.sportanalyzer;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
-import android.media.Image;
-import android.media.MediaCodec;
-import android.media.MediaExtractor;
-import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.projection.MediaProjection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.Surface;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
-import android.view.MotionEvent;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -54,13 +49,18 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+
+
     private MediaPlayer mediaPlayer;
     private SurfaceView videoSurfaceView;
     SurfaceHolder videoHolder, graphicsHolder;
     SurfaceView graphicsSurfaceView;
+
+    SecondsCounter counter = new SecondsCounter();
     LinearLayout topBarLayout, seekbarLayout, toolsLayout;
 
     private LinearLayout spotlightMain;
@@ -68,10 +68,15 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     private LinearLayout formationArea;
     private LinearLayout formationArrow;
     private LinearLayout formationText;
+    private LinearLayout markerMain;
+    private LinearLayout formationscan;
+    private LinearLayout formationSpace;
     HologramDraw hologramDraw;
     FormationLine formationLineInstance;
     FormationArea formationAreaInstance;
-
+    FormationMarker formationMarker;
+    FormationSpace formationSpaceInstance;
+    FormationScan formationScan;
     FormationArrow formationArrowInstance;
     FormateText formateTextInstance;
     ImageView undo;
@@ -96,12 +101,27 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     int DRAW_FORMATION_AREA = 2002;
     int DRAW_ARROW = 2007;
     int DRAW_TEXT = 2005;
-
+    int DRAW_MARKER = 2045;
+    int DRAW_SCAN = 2087;
+    int DRAW_SPACE = 2090;
     int DRAW_TOOL = -1;
     String text = "";
     int DRAW_HOLOGRAM_DEFAULT = 1, DRAW_HOLOGRAM_YELLOW = 29, DRAW_HOLOGRAM_WHITE = 92, DRAW_HOLOGRAM_BLUE = 89;
+    int DRAW_MARKER_DEFAULT = 56, DRAW_MARKER_ROUND = 57, DRAW_MARKER_CROSS = 58, DRAW_MARKER_CURCLE = 59;
+    int DRAW_SCAN_DEFAULT = 40, DRAW_SCAN_BACK = 41, DRAW_SCAN_FRONT = 42, DRAW_SCAN_DOWN = 44;
+    public static final int DRAW_OPTION_DEFAULT_ARROW = 458645;
+    public static final int DRAW_OPTION_CURVED = 490648584;
+    public static final int DRAW_OPTION_DASH = 8767654;
+    public static final int DRAW_OPTION_ZIGZAG = 786758758;
     Bitmap bitmapMain;
     Canvas canvasMain;
+
+
+
+
+
+    public VideoPlayerActivity() {
+    }
 
 
     @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
@@ -124,12 +144,66 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         videoHolder = videoSurfaceView.getHolder();
         graphicsHolder = graphicsSurfaceView.getHolder();
         spotlightMain = findViewById(R.id.spotlight_main);
+        markerMain = findViewById(R.id.marker_main);
+        formationscan = findViewById(R.id.formation_scan);
+        formationSpace = findViewById(R.id.formationspace);
+
         undo = findViewById(R.id.undo);
+
+
+        undo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (formationArrowInstance != null) {
+                    formationArrowInstance.undo();
+
+                    if (formationArrowInstance == null) {
+                        formationArrowInstance = new FormationArrow();
+                    }
+                    Canvas canvas = graphicsHolder.lockCanvas();
+                    if (canvas != null) {
+                        Rect srcRect = new Rect(0, 0, bitmapMain.getWidth(), bitmapMain.getHeight());
+                        RectF destRect = new RectF(0, 0, canvas.getWidth(), canvas.getHeight());
+                        canvas.drawBitmap(bitmapMain, srcRect, destRect, null);
+                        formationArrowInstance.setARROW_TYPE(DRAW_TOOL_OPTION);
+
+                        formationArrowInstance.drawArrow(canvas, -1, -1);
+                        graphicsHolder.unlockCanvasAndPost(canvas);
+                    }
+                }
+            }
+        });
 
 
         editextlayout = findViewById(R.id.editextlayout);
         editText = findViewById(R.id.edittext);
         edittextokbtn = findViewById(R.id.edittextokbtn);
+        counter.setInterval(100);
+
+        counter.addInterfaceCallBack(new SecondsCounter.SecondsCounterInterface() {
+            @Override
+            public void updateTimeFormatSecondsCounter(long hour, long minute, long second) {
+
+            }
+
+            @Override
+            public void totalSecondsCounter(long totalSeconds) {
+                if (mediaPlayer != null) {
+                    int current = mediaPlayer.getCurrentPosition();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            seekBar.setProgress(current);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void timeQueueInterfaceCall(long hour, long minute, long second) {
+
+            }
+        });
 
         edittextokbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,6 +234,15 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 } else if (DRAW_TOOL == DRAW_ARROW) {
                     formationArrow.setBackgroundTintList(null);
 
+                } else if (DRAW_TOOL == DRAW_MARKER) {
+                    markerMain.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SCAN) {
+                    formationscan.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SPACE) {
+                    formationSpace.setBackgroundTintList(null);
+
                 } else if (DRAW_TOOL == DRAW_TEXT) {
                     formationText.setBackgroundTintList(null);
 
@@ -183,7 +266,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 if (DRAW_TOOL == DRAW_FORMATION_AREA) {
                     DRAW_TOOL = -1;
                     formationArea.setBackgroundTintList(null);
-                } else   {
+                } else {
 
                     if (DRAW_TOOL == DRAW_HOLOGRAM) {
                         spotlightMain.setBackgroundTintList(null);
@@ -195,6 +278,15 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                     } else if (DRAW_TOOL == DRAW_TEXT) {
                         formationText.setBackgroundTintList(null);
 
+                    } else if (DRAW_TOOL == DRAW_MARKER) {
+                        markerMain.setBackgroundTintList(null);
+
+                    } else if (DRAW_TOOL == DRAW_SCAN) {
+                        formationscan.setBackgroundTintList(null);
+
+                    } else if (DRAW_TOOL == DRAW_SPACE) {
+                        formationSpace.setBackgroundTintList(null);
+
                     }
 
                     DRAW_TOOL = DRAW_FORMATION_AREA;
@@ -205,6 +297,44 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             }
         });
 
+        //*******************************  // Initialize formation SPACE views
+        formationSpace = findViewById(R.id.formationspace);
+        formationSpace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isdrawingMode)
+                    return;
+                if (DRAW_TOOL == DRAW_SPACE) {
+                    DRAW_TOOL = -1;
+                    formationSpace.setBackgroundTintList(null);
+                } else {
+
+                    if (DRAW_TOOL == DRAW_HOLOGRAM) {
+                        spotlightMain.setBackgroundTintList(null);
+                    } else if (DRAW_TOOL == DRAW_FORMATION_LINE) {
+                        formationLine.setBackgroundTintList(null);
+                    } else if (DRAW_TOOL == DRAW_ARROW) {
+                        formationArrow.setBackgroundTintList(null);
+
+                    } else if (DRAW_TOOL == DRAW_TEXT) {
+                        formationText.setBackgroundTintList(null);
+
+                    } else if (DRAW_TOOL == DRAW_MARKER) {
+                        markerMain.setBackgroundTintList(null);
+                    } else if (DRAW_TOOL == DRAW_SCAN) {
+                        formationscan.setBackgroundTintList(null);
+                    } else if (DRAW_TOOL == DRAW_FORMATION_AREA) {
+                        formationArea.setBackgroundTintList(null);
+                    }
+
+                    DRAW_TOOL = DRAW_SPACE;
+                    ColorStateList colorStateList = ContextCompat.getColorStateList(getApplicationContext(), R.color.selectrion_highlight);
+                    formationSpace.setBackgroundTintList(colorStateList);
+                }
+                editextlayout.setVisibility(GONE);
+            }
+        });
+//***********************************************************************************************
         // Initialize formation arrow views
         formationArrow = findViewById(R.id.formation_arrow);
         formationArrow.setOnClickListener(new View.OnClickListener() {
@@ -215,7 +345,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 if (DRAW_TOOL == DRAW_ARROW) {
                     DRAW_TOOL = -1;
                     formationArrow.setBackgroundTintList(null);
-                } else   {
+                } else {
 
                     if (DRAW_TOOL == DRAW_HOLOGRAM) {
                         spotlightMain.setBackgroundTintList(null);
@@ -227,9 +357,19 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                     } else if (DRAW_TOOL == DRAW_TEXT) {
                         formationText.setBackgroundTintList(null);
 
+                    } else if (DRAW_TOOL == DRAW_MARKER) {
+                        markerMain.setBackgroundTintList(null);
+
+                    } else if (DRAW_TOOL == DRAW_SCAN) {
+                        formationscan.setBackgroundTintList(null);
+
+                    } else if (DRAW_TOOL == DRAW_SPACE) {
+                        formationSpace.setBackgroundTintList(null);
+
                     }
 
                     DRAW_TOOL = DRAW_ARROW;
+                    DRAW_TOOL_OPTION = DRAW_OPTION_DEFAULT_ARROW;
                     ColorStateList colorStateList = ContextCompat.getColorStateList(getApplicationContext(), R.color.selectrion_highlight);
                     formationArrow.setBackgroundTintList(colorStateList);
                 }
@@ -259,6 +399,15 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 } else if (DRAW_TOOL == DRAW_ARROW) {
                     formationArrow.setBackgroundTintList(null);
 
+                } else if (DRAW_TOOL == DRAW_MARKER) {
+                    markerMain.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SCAN) {
+                    formationscan.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SPACE) {
+                    formationSpace.setBackgroundTintList(null);
+
                 }
                 DRAW_TOOL = DRAW_TEXT;
                 editextlayout.setVisibility(VISIBLE);
@@ -268,36 +417,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 formationText.setBackgroundTintList(colorStateList);
             }
 
-        });
-
-        spotlightMain.setOnClickListener(v -> {
-            if (!isdrawingMode)
-                return;
-
-            if (DRAW_TOOL == DRAW_HOLOGRAM) {
-                DRAW_TOOL = -1;
-                spotlightMain.setBackgroundTintList(null);
-            } else {
-
-                if (DRAW_TOOL == DRAW_TEXT) {
-                    formationText.setBackgroundTintList(null);
-                } else if (DRAW_TOOL == DRAW_FORMATION_LINE) {
-                    formationLine.setBackgroundTintList(null);
-                } else if (DRAW_TOOL == DRAW_FORMATION_AREA) {
-                    formationArea.setBackgroundTintList(null);
-
-                } else if (DRAW_TOOL == DRAW_ARROW) {
-                    formationArrow.setBackgroundTintList(null);
-
-                }
-                DRAW_TOOL = DRAW_HOLOGRAM;
-                DRAW_TOOL_OPTION = DRAW_HOLOGRAM_DEFAULT;
-
-                ColorStateList colorStateList = ContextCompat.getColorStateList(getApplicationContext(), R.color.selectrion_highlight);
-                spotlightMain.setBackgroundTintList(colorStateList);
-            }
-
-            editextlayout.setVisibility(GONE);
         });
 
         spotlightMain.setOnLongClickListener(new View.OnLongClickListener() {
@@ -361,6 +480,314 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             }
         });
 
+        spotlightMain.setOnClickListener(v -> {
+            if (!isdrawingMode)
+                return;
+
+            if (DRAW_TOOL == DRAW_HOLOGRAM) {
+                DRAW_TOOL = -1;
+                spotlightMain.setBackgroundTintList(null);
+            } else {
+
+                if (DRAW_TOOL == DRAW_TEXT) {
+                    formationText.setBackgroundTintList(null);
+                } else if (DRAW_TOOL == DRAW_FORMATION_LINE) {
+                    formationLine.setBackgroundTintList(null);
+                } else if (DRAW_TOOL == DRAW_FORMATION_AREA) {
+                    formationArea.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_ARROW) {
+                    formationArrow.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_MARKER) {
+                    markerMain.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SCAN) {
+                    formationscan.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SPACE) {
+                    formationSpace.setBackgroundTintList(null);
+
+                }
+                DRAW_TOOL = DRAW_HOLOGRAM;
+                DRAW_TOOL_OPTION = DRAW_HOLOGRAM_DEFAULT;
+
+                ColorStateList colorStateList = ContextCompat.getColorStateList(getApplicationContext(), R.color.selectrion_highlight);
+                spotlightMain.setBackgroundTintList(colorStateList);
+            }
+
+            editextlayout.setVisibility(GONE);
+        });
+//888888888888888888888888888888888888888marker
+        markerMain.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Dialog dialog = new Dialog(VideoPlayerActivity.this);
+                WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+                int[] location = new int[2];
+                markerMain.getLocationInWindow(location);
+
+                layoutParams.gravity = Gravity.TOP | Gravity.START;
+                layoutParams.x = location[0] - markerMain.getWidth(); // Set x-coordinate
+                layoutParams.y = location[1]; // Set y-coordinate
+
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.getWindow().setAttributes(layoutParams);
+                dialog.setContentView(R.layout.marker_option);
+
+                ImageView defaultmarker;
+                ImageView roudmarker;
+                ImageView crossmarker;
+                ImageView cuirclemarker;
+
+                defaultmarker = dialog.findViewById(R.id.default_marker);
+                roudmarker = dialog.findViewById(R.id.roud_marker);
+                crossmarker = dialog.findViewById(R.id.cross_marker);
+                cuirclemarker = dialog.findViewById(R.id.cuircle_marker);
+
+                // Set click listeners
+                defaultmarker.setOnClickListener(v1 -> {
+                    DRAW_TOOL = DRAW_MARKER;
+                    DRAW_TOOL_OPTION = DRAW_MARKER_DEFAULT;
+                    dialog.dismiss();
+                    // Add your logic for default hologram click
+                });
+
+                roudmarker.setOnClickListener(v12 -> {
+                    DRAW_TOOL = DRAW_MARKER;
+                    DRAW_TOOL_OPTION = DRAW_MARKER_ROUND;
+                    dialog.dismiss();
+                    // Add your logic for yellow hologram click
+                });
+
+                crossmarker.setOnClickListener(v13 -> {
+                    DRAW_TOOL = DRAW_MARKER;
+                    DRAW_TOOL_OPTION = DRAW_MARKER_CROSS;
+                    dialog.dismiss();
+                    // Add your logic for white hologram click
+                });
+
+                cuirclemarker.setOnClickListener(v14 -> {
+                    DRAW_TOOL = DRAW_MARKER;
+                    DRAW_TOOL_OPTION = DRAW_MARKER_CURCLE;
+                    dialog.dismiss();
+                    // Add your logic for blue hologram click
+                });
+
+                dialog.show();
+
+                return false;
+            }
+        });
+        markerMain.setOnClickListener(v -> {
+            if (!isdrawingMode)
+                return;
+
+            if (DRAW_TOOL == DRAW_MARKER) {
+                DRAW_TOOL = -1;
+                markerMain.setBackgroundTintList(null);
+            } else {
+
+                if (DRAW_TOOL == DRAW_TEXT) {
+                    formationText.setBackgroundTintList(null);
+                } else if (DRAW_TOOL == DRAW_FORMATION_LINE) {
+                    formationLine.setBackgroundTintList(null);
+                } else if (DRAW_TOOL == DRAW_FORMATION_AREA) {
+                    formationArea.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_ARROW) {
+                    formationArrow.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_HOLOGRAM) {
+                    spotlightMain.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SPACE) {
+                    formationSpace.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SCAN) {
+                    formationscan.setBackgroundTintList(null);
+
+                }
+                DRAW_TOOL = DRAW_MARKER;
+                DRAW_TOOL_OPTION = DRAW_MARKER_DEFAULT;
+
+                ColorStateList colorStateList = ContextCompat.getColorStateList(getApplicationContext(), R.color.selectrion_highlight);
+                markerMain.setBackgroundTintList(colorStateList);
+            }
+
+            editextlayout.setVisibility(GONE);
+        });
+        //SCAN**************************************
+        formationscan.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Dialog dialog = new Dialog(VideoPlayerActivity.this);
+                WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+                int[] location = new int[2];
+                formationscan.getLocationInWindow(location);
+
+                layoutParams.gravity = Gravity.TOP | Gravity.START;
+                layoutParams.x = location[0] - formationscan.getWidth(); // Set x-coordinate
+                layoutParams.y = location[1]; // Set y-coordinate
+
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.getWindow().setAttributes(layoutParams);
+                dialog.setContentView(R.layout.scan_option);
+
+                ImageView defaultscan;
+                ImageView backscan;
+                ImageView frontscan;
+                ImageView downscan;
+
+                defaultscan = dialog.findViewById(R.id.defaultscan);
+                backscan = dialog.findViewById(R.id.frontscan);
+                frontscan = dialog.findViewById(R.id.backscan);
+                downscan = dialog.findViewById(R.id.downscan);
+
+                // Set click listeners
+                defaultscan.setOnClickListener(v1 -> {
+                    DRAW_TOOL = DRAW_SCAN;
+                    DRAW_TOOL_OPTION = DRAW_SCAN_DEFAULT;
+                    dialog.dismiss();
+                    // Add your logic for default hologram click
+                });
+
+                backscan.setOnClickListener(v12 -> {
+                    DRAW_TOOL = DRAW_SCAN;
+                    DRAW_TOOL_OPTION = DRAW_SCAN_BACK;
+                    dialog.dismiss();
+                    // Add your logic for yellow hologram click
+                });
+
+                frontscan.setOnClickListener(v13 -> {
+                    DRAW_TOOL = DRAW_SCAN;
+                    DRAW_TOOL_OPTION = DRAW_SCAN_FRONT;
+                    dialog.dismiss();
+                    // Add your logic for white hologram click
+                });
+
+                downscan.setOnClickListener(v14 -> {
+                    DRAW_TOOL = DRAW_SCAN;
+                    DRAW_TOOL_OPTION = DRAW_SCAN_DOWN;
+                    dialog.dismiss();
+                    // Add your logic for blue hologram click
+                });
+
+                dialog.show();
+
+                return false;
+            }
+        });
+        formationscan.setOnClickListener(v -> {
+            if (!isdrawingMode)
+                return;
+
+            if (DRAW_TOOL == DRAW_SCAN) {
+                DRAW_TOOL = -1;
+                formationscan.setBackgroundTintList(null);
+            } else {
+
+                if (DRAW_TOOL == DRAW_TEXT) {
+                    formationText.setBackgroundTintList(null);
+                } else if (DRAW_TOOL == DRAW_FORMATION_LINE) {
+                    formationLine.setBackgroundTintList(null);
+                } else if (DRAW_TOOL == DRAW_FORMATION_AREA) {
+                    formationArea.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_ARROW) {
+                    formationArrow.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_HOLOGRAM) {
+                    spotlightMain.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_SPACE) {
+                    formationSpace.setBackgroundTintList(null);
+
+                } else if (DRAW_TOOL == DRAW_MARKER) {
+                    markerMain.setBackgroundTintList(null);
+
+                }
+                DRAW_TOOL = DRAW_SCAN;
+                DRAW_TOOL_OPTION = DRAW_SCAN_DEFAULT;
+
+                ColorStateList colorStateList = ContextCompat.getColorStateList(getApplicationContext(), R.color.selectrion_highlight);
+                formationscan.setBackgroundTintList(colorStateList);
+            }
+
+            editextlayout.setVisibility(GONE);
+        });
+//***************************************************************************************
+
+        formationArrow.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Dialog dialog = new Dialog(VideoPlayerActivity.this);
+                WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+                int[] location = new int[2];
+                formationArrow.getLocationInWindow(location);
+
+                layoutParams.gravity = Gravity.TOP | Gravity.START;
+                layoutParams.x = location[0] - formationArrow.getWidth(); // Set x-coordinate
+                layoutParams.y = location[1]; // Set y-coordinate
+
+                dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.getWindow().setAttributes(layoutParams);
+                dialog.setContentView(R.layout.arrow_options);
+
+                ImageView defaultArrow;
+                ImageView curvedArrow;
+                ImageView dashArrow;
+                ImageView zigzagArrow;
+
+                defaultArrow = dialog.findViewById(R.id.default_arrow);
+                curvedArrow = dialog.findViewById(R.id.curved_arrow);
+                dashArrow = dialog.findViewById(R.id.dash_arrow);
+                zigzagArrow = dialog.findViewById(R.id.zigzag_arrow);
+
+// Set click listeners
+                defaultArrow.setOnClickListener(v1 -> {
+                    DRAW_TOOL = DRAW_ARROW;
+                    DRAW_TOOL_OPTION = DRAW_OPTION_DEFAULT_ARROW;
+                    Log.i("test", "defaukt arrow");
+                    dialog.dismiss();
+                    // Add your logic for default arrow click
+                });
+
+                curvedArrow.setOnClickListener(v12 -> {
+                    DRAW_TOOL = DRAW_ARROW;
+                    DRAW_TOOL_OPTION = DRAW_OPTION_CURVED;
+                    dialog.dismiss();
+                    Log.i("test", "curved arrow");
+
+                    // Add your logic for curved arrow click
+                });
+
+                dashArrow.setOnClickListener(v13 -> {
+                    DRAW_TOOL = DRAW_ARROW;
+                    DRAW_TOOL_OPTION = DRAW_OPTION_DASH;
+                    dialog.dismiss();
+                    Log.i("test", "dash arrow");
+
+                    // Add your logic for dash arrow click
+                });
+
+                zigzagArrow.setOnClickListener(v14 -> {
+                    DRAW_TOOL = DRAW_ARROW;
+                    DRAW_TOOL_OPTION = DRAW_OPTION_ZIGZAG;
+                    dialog.dismiss();
+                    Log.i("test", "zigzack arrow");
+
+                    // Add your logic for zigzag arrow click
+                });
+
+
+                dialog.show();
+
+                return false;
+            }
+        });
+
+
         videoHolder.addCallback(this);
         graphicsHolder.addCallback(this);
 
@@ -371,6 +798,12 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             if (!isplaying) {
                 if (mediaPlayer != null) {
                     mediaPlayer.start();
+                    if (counter != null) {
+                        counter.start();
+                        Log.i("test", "counter starting");
+
+                    }
+
 
                     playBtn.setImageResource(R.drawable.pause_circle);
                     isplaying = true;
@@ -380,6 +813,10 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 if (mediaPlayer != null) {
                     currentFrameMilli = mediaPlayer.getCurrentPosition();
                     mediaPlayer.pause();
+                    if (counter != null) {
+                        counter.pause();
+
+                    }
 
                     playBtn.setImageResource(R.drawable.play_circle);
                     isplaying = false;
@@ -387,62 +824,40 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             }
         });
 
+        // Other initialization...
+
 
         drawBtn.setOnClickListener(v -> {
             if (!isdrawingMode) {
                 if (mediaPlayer != null) {
-                    Log.i("test", 10 + "  " + 11);
                     currentFrameMilli = mediaPlayer.getCurrentPosition();
                     mediaPlayer.pause();
 
-                    graphicsSurfaceView.setVisibility(VISIBLE);
-                    seekbarLayout.setVisibility(GONE);
+                    graphicsSurfaceView.setVisibility(View.VISIBLE);
+                    seekbarLayout.setVisibility(View.GONE);
                     topBarLayout.setVisibility(GONE);
-                    playBtn.setVisibility(GONE);
-                    drawBtn.setVisibility(GONE);
+                    playBtn.setVisibility(View.GONE);
+                    drawBtn.setVisibility(View.GONE);
                     toolsLayout.setBackground(new ColorDrawable(Color.TRANSPARENT));
-                    drawSaveBtn.setVisibility(VISIBLE);
+                    drawSaveBtn.setVisibility(View.VISIBLE);
                     DRAW_TOOL=-1;
-                    ImageView dummy = findViewById(R.id.dummyimageview);
 
-                    Glide.with(VideoPlayerActivity.this).asBitmap()
-                            .load(videoUri).frame(currentFrameMilli * 1000).addListener(new RequestListener<Bitmap>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
-                                    return false;
-                                }
+                    Bitmap bitmap = extractFrameAndStoreSequence(videoUri, currentFrameMilli);
+                    addlistner(bitmap);
 
-                                @Override
-                                public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                               //   addlistner(resource);
-                                 
-                                    return false;
-                                }
-                            }).into(dummy);
 
-                          Bitmap bitmap=extractFrame(videoUri,currentFrameMilli);
-                          addlistner(bitmap);
 
                 }
                 isdrawingMode = true;
             }
         });
 
-
+//tick save******************************************************
         drawSaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Bitmap bitmap = Bitmap.createBitmap(graphicsSurfaceView.getWidth(), graphicsSurfaceView.getHeight(), Bitmap.Config.ARGB_8888);
 
-                // Create a Canvas with the Bitmap
-                Canvas canvas = new Canvas(bitmap);
-
-                // Draw the content of the SurfaceView onto the Canvas
-                graphicsSurfaceView.draw(canvas);
                 editextlayout.setVisibility(GONE);
-
-                // Save the Bitmap as a JPEG file
-                SaveSurfaceViewImage.saveBitmapAsJPEG(getApplicationContext(), bitmap);
                 graphicsSurfaceView.setVisibility(GONE);
 
                 mediaPlayer.release();
@@ -460,15 +875,21 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                 }
 
                 hologramDraw = null;
+                formationMarker = null;
                 formationLineInstance = null;
                 formationAreaInstance = null;
                 formationArrowInstance = null;
+                formationSpaceInstance = null;
+
                 DRAW_TOOL = -1;
                 formationArrow.setBackgroundTintList(null);
                 formationArea.setBackgroundTintList(null);
                 formationLine.setBackgroundTintList(null);
                 formationText.setBackgroundTintList(null);
                 spotlightMain.setBackgroundTintList(null);
+                markerMain.setBackgroundTintList(null);
+                formationSpace.setBackgroundTintList(null);
+                formationscan.setBackgroundTintList(null);
 
 
                 seekbarLayout.setVisibility(VISIBLE);
@@ -484,8 +905,6 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         seekBar = findViewById(R.id.Seekbr);
 
 
-
-
         videoUri = getIntent().getData();
         try {
             mediaPlayer.setDataSource(this, videoUri);
@@ -495,13 +914,13 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         }
 
 
-        seekBar.setMax(100);
+        seekBar.setMax(mediaPlayer.getDuration());
         seekBar.setProgress(0);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-                seekTo(progress);
+                if (fromUser)
+                    seekTo(progress);
 
             }
 
@@ -521,25 +940,43 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
     }
 
-    boolean undoCLICKED = false;
 
-    private void drawGraphics(Bitmap bitmap) {
-
-    }
-
+    //frame ectract****************************************************************************
     long currentFrameMilli;
 
-    private Bitmap extractFrame(Uri videoUri, long timeInMillis) {
+    private Bitmap extractFrameAndStoreSequence(Uri videoUri, long timeInMillis) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        ArrayList<Bitmap> sequenceArray = new ArrayList<>();
+        long frameTime = 0;
 
         try {
             // Set the data source from the Uri
             retriever.setDataSource(this, videoUri);
 
             // Get the frame at the specified time
-            Bitmap frameBitmap = retriever.getFrameAtTime(timeInMillis * 1000, MediaMetadataRetriever.OPTION_NEXT_SYNC);
+            frameTime = timeInMillis * 1000;
+            Bitmap firstFrame = retriever.getFrameAtTime(frameTime, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);
+            sequenceArray.add(firstFrame);
+
+            // Store frames in the sequence array for the next 6 seconds
+            for (int i = 1; i <= 6; i++) {
+                frameTime += 1000000; // Move to the next second (1,000,000 microseconds = 1 second)
+                Bitmap frameBitmap = retriever.getFrameAtTime(frameTime, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);
+                sequenceArray.add(frameBitmap);
+            }
+
             retriever.release();
-            return frameBitmap;
+
+            // You can now use the 'sequenceArray' for further processing
+            // and 'frameTime' for the timestamp of the first frame.
+
+            // Example: Print timestamps of frames in the sequence
+            for (int i = 0; i < sequenceArray.size(); i++) {
+                long timestamp = frameTime + (i * 1000000);
+                Log.d("extractFrameAndStoreSequence", "Frame " + i + " timestamp: " + timestamp);
+            }
+
+            return firstFrame; // You can return the first frame if needed
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -547,6 +984,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         return null;
     }
 
+    //**********************************************************************************
     boolean issurfaceInit = false;
 
     @Override
@@ -554,7 +992,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
 
         if (holder.getSurface() == videoSurfaceView.getHolder().getSurface()) {
-            message("video surfaceview");
+
             if (!issurfaceInit) {
                 mediaPlayer.setDisplay(holder);
                 issurfaceInit = true;
@@ -562,16 +1000,13 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
 
         } else {
-            message("graphics surfaceview");
+
             graphicsHolder = holder;
 
         }
+        ///////////////////////////////////////////////////////////graphic media
 
 
-    }
-
-    private void message(String mes) {
-        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(VideoPlayerActivity.this, mes, Toast.LENGTH_SHORT).show());
     }
 
     @Override
@@ -586,7 +1021,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         if (mediaPlayer != null) {
             mediaPlayer.release();
         }
-        Log.i("test", "surface view distroyed");
+
     }
 
     @Override
@@ -601,224 +1036,296 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
     private void seekTo(int position) {
 
-        long fullduration = mediaPlayer.getDuration();
-        int cal = (int) (fullduration * (position / 100.0));
 
-        runOnUiThread(() -> mediaPlayer.seekTo(cal));
+        runOnUiThread(() -> mediaPlayer.seekTo(position));
 
     }
 
 
+    @SuppressLint("SuspiciousIndentation")
+    private void addlistner(Bitmap bitmap) {
+        bitmapMain = bitmap;
 
-    void togglePauseResume() {
-        try {
+//draaw canvas *************************************************************
 
 
-            if (!isFinishing() && mediaPlayer != null) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                    // Stop updating the seek bar
-                    //   handler.removeCallbacks(updateSeekBar);
-                } else {
-                    mediaPlayer.start();
-                    // Start updating the seek bar again
-                    //  handler.postDelayed(updateSeekBar, 1000);
+        new Handler().postDelayed(new Runnable() {
+
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public void run() {
+
+
+                Canvas canvas = graphicsHolder.lockCanvas();
+                if (canvas != null) {
+
+
+                    Rect srcRect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+                    RectF destRect = new RectF(0, 0, canvas.getWidth(), canvas.getHeight());
+
+                    canvas.drawBitmap(bitmap, srcRect, destRect, null);
+
+                    graphicsHolder.unlockCanvasAndPost(canvas);
+
+
+                    graphicsSurfaceView.setOnTouchListener(new View.OnTouchListener() {
+
+
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+
+                            int x = (int) event.getX();
+                            int y = (int) event.getY();
+                            if (event.getAction() == MotionEvent.ACTION_UP) {
+                                if (DRAW_TOOL != -1) {
+                                    if (DRAW_TOOL == DRAW_HOLOGRAM) {
+                                        if (hologramDraw == null) {
+                                            hologramDraw = new HologramDraw();
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+                                        canvas.drawBitmap(bitmap, srcRect, destRect, null);
+                                        Bitmap hologramBitmap = null;
+                                        if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_DEFAULT) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.spotlight_icon_btn, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_YELLOW) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.yellowholo, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 300; // Replace with your desired height
+                                            hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_WHITE) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.whiteholo, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_BLUE) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.blueholo, new BitmapFactory.Options());
+                                            int newWidth = 150;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+
+
+                                        hologramDraw.drawIfNotOverlaying(canvas, x, y, hologramBitmap);
+                                        graphicsHolder.unlockCanvasAndPost(canvas);
+                                        canvasMain = canvas;
+
+
+                                    } else if (DRAW_TOOL == DRAW_MARKER) {
+                                        if (formationMarker == null) {
+                                            formationMarker = new FormationMarker();
+                                            Bitmap markerBitmap = null;
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+                                        canvas.drawBitmap(bitmap, srcRect, destRect, null);
+                                        Bitmap markerBitmap = null;
+                                        if (DRAW_TOOL_OPTION == DRAW_MARKER_DEFAULT) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_MARKER_ROUND) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.roundmarker, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 300; // Replace with your desired height
+                                            markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_MARKER_CROSS) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.crossmarker, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_MARKER_CURCLE) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.curclemarker, new BitmapFactory.Options());
+                                            int newWidth = 150;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+
+
+                                        formationMarker.drawIfNotOverlaying(canvas, x, y, markerBitmap);
+                                        graphicsHolder.unlockCanvasAndPost(canvas);
+                                        canvasMain = canvas;
+
+
+//scan start*******************************************************************************************************
+
+
+                                    } else if (DRAW_TOOL == DRAW_SCAN) {
+                                        if (formationScan == null) {
+                                            formationScan = new FormationScan();
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+                                        canvas.drawBitmap(bitmap, srcRect, destRect, null);
+                                        Bitmap scanBitmap = null;
+                                        if (DRAW_TOOL_OPTION == DRAW_SCAN_DEFAULT) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.topscan, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_SCAN_BACK) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.backscan, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 300; // Replace with your desired height
+                                            scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_SCAN_FRONT) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.frontscan, new BitmapFactory.Options());
+                                            int newWidth = 200;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+                                        if (DRAW_TOOL_OPTION == DRAW_SCAN_DOWN) {
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.downscan, new BitmapFactory.Options());
+                                            int newWidth = 150;  // Replace with your desired width
+                                            int newHeight = 250; // Replace with your desired height
+                                            scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+                                        }
+
+
+                                        formationScan.drawIfNotOverlaying(canvas, x, y, scanBitmap);
+                                        graphicsHolder.unlockCanvasAndPost(canvas);
+                                        canvasMain = canvas;
+
+
+//////scan end********************************************************************************
+
+
+                                    } else if (DRAW_TOOL == DRAW_FORMATION_LINE) {
+
+                                        if (formationLineInstance == null) {
+                                            formationLineInstance = new FormationLine();
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+                                        if (canvas != null) {
+
+                                            canvas.drawBitmap(bitmap, srcRect, destRect, null);
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
+                                            int newWidth = 150;  // Replace with your desired width
+                                            int newHeight = 150; // Replace with your desired height
+
+
+                                            Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+
+                                            formationLineInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
+                                            graphicsHolder.unlockCanvasAndPost(canvas);
+                                        }
+
+                                    } else if (DRAW_TOOL == DRAW_FORMATION_AREA) {
+                                        if (formationAreaInstance == null) {
+                                            formationAreaInstance = new FormationArea();
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+                                        if (canvas != null) {
+
+                                            canvas.drawBitmap(bitmap, srcRect, destRect, null);
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
+                                            int newWidth = 150;  // Replace with your desired width
+                                            int newHeight = 150; // Replace with your desired height
+
+
+                                            Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+
+                                            formationAreaInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
+                                            graphicsHolder.unlockCanvasAndPost(canvas);
+                                        }
+
+                                    } else if (DRAW_TOOL == DRAW_SPACE) {
+                                        if (formationSpaceInstance == null) {
+                                            formationSpaceInstance = new FormationSpace();
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+                                        if (canvas != null) {
+
+                                            canvas.drawBitmap(bitmap, srcRect, destRect, null);
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
+                                            int newWidth = 70;  // Replace with your desired width
+                                            int newHeight = 70; // Replace with your desired height
+
+
+                                            Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
+
+
+                                            formationSpaceInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
+                                            graphicsHolder.unlockCanvasAndPost(canvas);
+                                        }
+
+                                    } else if (DRAW_TOOL == DRAW_ARROW) {
+                                        if (formationArrowInstance == null) {
+                                            formationArrowInstance = new FormationArrow();
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+                                        if (canvas != null) {
+
+                                            canvas.drawBitmap(bitmap, srcRect, destRect, null);
+                                            formationArrowInstance.setARROW_TYPE(DRAW_TOOL_OPTION);
+
+                                            formationArrowInstance.drawArrow(canvas, x, y);
+                                            graphicsHolder.unlockCanvasAndPost(canvas);
+                                        }
+
+                                    } else if (DRAW_TOOL == DRAW_TEXT) {
+                                        if (formateTextInstance == null) {
+                                            formateTextInstance = new FormateText();
+                                        }
+                                        Canvas canvas = graphicsHolder.lockCanvas();
+
+                                        if (canvas != null) {
+
+                                            canvas.drawBitmap(bitmap, srcRect, destRect, null);
+
+
+                                            text = editText.getText().toString().trim();
+
+
+                                            String main = "  " + text + "  ";
+
+                                            formateTextInstance.drawText(canvas, main, x, y);
+                                            graphicsHolder.unlockCanvasAndPost(canvas);
+
+
+                                        }
+
+
+                                    }
+                                }
+
+                            }
+
+
+                            return true;
+                        }
+                    });
                 }
-            } else {
-                // Handle the case where mediaPlayer is null
-                Toast.makeText(this, "Media player not initialized", Toast.LENGTH_SHORT).show();
+
             }
-        } catch (Exception e) {
-        }
-    }
-
-    // Example: Pause on button click
-    public void onPauseButtonClick(View view) {
-        togglePauseResume();
-    }
-    
-
-    private  void addlistner(Bitmap bitmap){
 
 
-          new Handler().postDelayed(new Runnable() {
-              @Override
-              public void run() {
-                  Canvas canvas = graphicsHolder.lockCanvas();
-                  if (canvas != null) {
-
-
-                      Rect srcRect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-                      RectF destRect = new RectF(0, 0, canvas.getWidth(), canvas.getHeight());
-
-                      canvas.drawBitmap(bitmap, srcRect, destRect, null);
-
-                      graphicsHolder.unlockCanvasAndPost(canvas);
-
-                      graphicsSurfaceView.setOnTouchListener(new View.OnTouchListener() {
-
-
-
-                          @Override
-                          public boolean onTouch(View v, MotionEvent event) {
-
-                              int x = (int) event.getX();
-                              int y = (int) event.getY();
-                              if (event.getAction() == MotionEvent.ACTION_UP) {
-                                  if (DRAW_TOOL != -1) {
-                                      if (DRAW_TOOL == DRAW_HOLOGRAM) {
-                                          if (hologramDraw == null) {
-                                              hologramDraw = new HologramDraw();
-                                          }
-                                          Canvas canvas = graphicsHolder.lockCanvas();
-                                          canvas.drawBitmap(bitmap, srcRect, destRect, null);
-                                          Bitmap hologramBitmap = null;
-                                          if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_DEFAULT) {
-                                              Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.spotlight_icon_btn, new BitmapFactory.Options());
-                                              int newWidth = 200;  // Replace with your desired width
-                                              int newHeight = 250; // Replace with your desired height
-                                              hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
-                                          }
-                                          if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_YELLOW) {
-                                              Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.spotlight_icon_btn, new BitmapFactory.Options());
-                                              int newWidth = 200;  // Replace with your desired width
-                                              int newHeight = 250; // Replace with your desired height
-                                              hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
-                                          }
-                                          if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_WHITE) {
-                                              Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.spotlight_icon_btn, new BitmapFactory.Options());
-                                              int newWidth = 200;  // Replace with your desired width
-                                              int newHeight = 250; // Replace with your desired height
-                                              hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
-                                          }
-                                          if (DRAW_TOOL_OPTION == DRAW_HOLOGRAM_BLUE) {
-                                              Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.spotlight_icon_btn, new BitmapFactory.Options());
-                                              int newWidth = 200;  // Replace with your desired width
-                                              int newHeight = 250; // Replace with your desired height
-                                              hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
-                                          }
-
-
-                                          hologramDraw.drawIfNotOverlaying(canvas, x, y, hologramBitmap);
-                                          graphicsHolder.unlockCanvasAndPost(canvas);
-
-                                      } else if (DRAW_TOOL == DRAW_FORMATION_LINE) {
-
-                                          if (formationLineInstance == null) {
-                                              formationLineInstance = new FormationLine();
-                                          }
-                                          Canvas canvas = graphicsHolder.lockCanvas();
-                                          if (canvas != null) {
-
-                                              canvas.drawBitmap(bitmap, srcRect, destRect, null);
-                                              Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
-                                              int newWidth = 100;  // Replace with your desired width
-                                              int newHeight = 100; // Replace with your desired height
-
-
-                                              Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
-
-                                              formationLineInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
-                                              graphicsHolder.unlockCanvasAndPost(canvas);
-                                          }
-
-                                      } else if (DRAW_TOOL == DRAW_FORMATION_AREA) {
-                                          if (formationAreaInstance == null) {
-                                              formationAreaInstance = new FormationArea();
-                                          }
-                                          Canvas canvas = graphicsHolder.lockCanvas();
-                                          if (canvas != null) {
-
-                                              canvas.drawBitmap(bitmap, srcRect, destRect, null);
-                                              Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
-                                              int newWidth = 100;  // Replace with your desired width
-                                              int newHeight = 100; // Replace with your desired height
-
-
-                                              Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
-
-                                              formationAreaInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
-                                              graphicsHolder.unlockCanvasAndPost(canvas);
-                                          }
-
-                                      } else if (DRAW_TOOL == DRAW_ARROW) {
-                                          if (formationArrowInstance == null) {
-                                              formationArrowInstance = new FormationArrow();
-                                          }
-                                          Canvas canvas = graphicsHolder.lockCanvas();
-                                          if (canvas != null) {
-
-                                              canvas.drawBitmap(bitmap, srcRect, destRect, null);
-
-
-                                              formationArrowInstance.drawArrow(canvas, x, y);
-                                              graphicsHolder.unlockCanvasAndPost(canvas);
-                                          }
-
-                                      } else if (DRAW_TOOL == DRAW_TEXT) {
-                                          if (formateTextInstance == null) {
-                                              formateTextInstance = new FormateText();
-                                          }
-                                          Canvas canvas = graphicsHolder.lockCanvas();
-
-                                          if (canvas != null) {
-
-                                              canvas.drawBitmap(bitmap, srcRect, destRect, null);
-
-
-                                              text = editText.getText().toString().trim();
-
-
-                                              String main = "  " + text + "  ";
-
-                                              formateTextInstance.drawText(canvas, main, x, y);
-                                              graphicsHolder.unlockCanvasAndPost(canvas);
-
-
-                                          }
-
-
-                                      }
-                                  }
-
-                              }
-
-
-                              return true;
-                          }
-                      });
-                  }
-
-              }
-          },10);
-
-
-
-
+        }, 10);
+//****************************************************************************************
 
 
     }
-    public Bitmap captureBitmap(SurfaceView suf) {
-        if (suf.getWidth() == 0 ||suf. getHeight() == 0) {
-            // View not yet laid out, unable to capture
-            return null;
-        }
-
-   Bitmap     capturedBitmap = Bitmap.createBitmap(suf.getWidth(),suf. getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(capturedBitmap);
-       suf. draw(canvas);  // Render the content of the SurfaceView onto the Bitmap
-
-        return capturedBitmap;
-    }
-
-    public interface  callbackForGlid{
-        void result(Bitmap bitmap);
-    }
-
 }

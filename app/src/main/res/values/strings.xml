@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Sport Analyzer</string>
+    <string name="title_previous_videos_activity">Previous Videos</string>
+    <string name="menu_remove_video">Remove Video</string>
 </resources>

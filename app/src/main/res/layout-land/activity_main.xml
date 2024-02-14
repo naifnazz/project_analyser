@@ -1,142 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#17242a"
     android:gravity="center"
-
     tools:context=".MainActivity"
     tools:ignore="MissingDefaultResource">
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="281dp"
+        android:layout_alignStart="@+id/imageView1"
+        android:layout_alignEnd="@+id/imageView1"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-48dp"
+        android:layout_marginEnd="-48dp"
+        android:layout_marginBottom="101dp" />
 
+
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="match_parent"
+        android:layout_height="215dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="48dp"
+        android:scaleType="fitXY" />
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="250dp"
-        android:orientation="horizontal">
+        android:layout_height="126dp"
+        android:layout_alignStart="@+id/imageView1"
+        android:layout_alignEnd="@+id/imageView1"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="-3dp"
+        android:layout_marginTop="272dp"
+        android:layout_marginEnd="3dp"
+        android:orientation="horizontal"
+        android:weightSum="3">
 
-        <LinearLayout
-            android:layout_width="337dp"
-            android:layout_height="200dp"
-            android:orientation="vertical">
+        <Button
+            android:id="@+id/importbtn"
+            android:layout_width="0dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/buttonColor"
+            android:paddingLeft="10dp"
+            android:text="Analysis"
+            android:textColor="#17242a"
+            android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/importbtn"
-                android:layout_width="317dp"
-                android:layout_height="174dp"
-                android:layout_gravity="center"
-                android:layout_margin="20dp"
-                android:background="@drawable/first_btn_bg"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="20dp">
+        <Button
+            android:id="@+id/foottac"
+            android:layout_width="0dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/buttonColor"
+            android:text="Tactic Board"
+            android:textColor="#17242a"
+            android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="5dp"
-                    android:text="import"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/arrowdown" />
-
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/foottac"
-                android:layout_width="215dp"
-                android:layout_height="92dp"
-                android:layout_gravity="center"
-                android:background="@drawable/third_btn_bg"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="5dp"
-                    android:text="foottac"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/arrowdown" />
-
-
-            </LinearLayout>
-        </LinearLayout>
+        <Button
+            android:id="@+id/webbutton"
+            android:layout_width="0dp"
+            android:layout_height="75dp"
+            android:layout_marginStart="4dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/buttonColor"
+            android:text="About"
+            android:textColor="#17242a"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="348dp"
-            android:layout_height="437dp"
-            android:orientation="vertical">
-
-            <LinearLayout
-
-                android:layout_width="321dp"
-                android:layout_height="170dp"
-                android:layout_gravity="center"
-                android:layout_margin="20dp"
-                android:background="@drawable/second_btn_bg"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="5dp"
-                    android:text="import"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/arrowdown" />
-
-
-            </LinearLayout>
-
-            <LinearLayout
-
-                android:layout_width="187dp"
-                android:layout_height="238dp"
-                android:layout_gravity="center"
-                android:background="@drawable/fourth_btn_bg"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingHorizontal="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="5dp"
-                    android:text="foottac"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:src="@drawable/arrowdown" />
-
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-</LinearLayout>
-
-
-
+</RelativeLayout>

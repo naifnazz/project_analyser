@@ -1,164 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ww"
+    android:background="@color/ww">
 
-    tools:context=".footballtac"
-    android:orientation="horizontal">>
-
+    <!-- Background Image (tacpitch) -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/btak7r49c"
+        android:src="@drawable/tacpitch"
         android:scaleType="fitXY"/>
 
+    <!-- Blue Players -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp">
+        android:layout_marginBottom="4dp">
 
+        <!-- Add more ImageView elements for each blue player -->
         <ImageView
             android:id="@+id/bluePlayer1"
             android:layout_width="24dp"
             android:layout_height="30dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="50dp"
-            android:layout_marginBottom="106dp"
-            android:src="@drawable/blue_circle_round_3d_button_1" />
-
-        <ImageView
-            android:id="@+id/bluePlayer2"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="261dp"
-            android:layout_marginBottom="132dp"
-            android:src="@drawable/blue_circle_round_3d_button_1" />
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
+            android:src="@drawable/whitegolcoin" />
 
+        <ImageView
+            android:id="@+id/bluePlayer2"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
+            android:src="@drawable/blue_circle_round_3d_button_1" />
         <ImageView
             android:id="@+id/bluePlayer3"
             android:layout_width="24dp"
             android:layout_height="30dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="122dp"
+            android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
-            android:layout_marginTop="55dp"
-            android:layout_marginEnd="585dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer4"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="240dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer5"
-            android:layout_width="30dp"
-            android:layout_height="19dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="573dp"
-            android:layout_marginBottom="285dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer6"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="216dp"
-            android:layout_marginBottom="70dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer7"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="195dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer8"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="218dp"
-            android:layout_marginBottom="131dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer9"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="897dp"
-            android:layout_marginBottom="491dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer10"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="151dp"
-            android:layout_marginBottom="73dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
-
         <ImageView
             android:id="@+id/bluePlayer11"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="153dp"
-            android:layout_marginBottom="127dp"
+            android:layout_marginEnd="482dp"
+            android:layout_marginBottom="82dp"
             android:src="@drawable/blue_circle_round_3d_button_1" />
 
+    </RelativeLayout>
+
+    <!-- Red Players -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="4dp">
+
+        <!-- Add more ImageView elements for each red player -->
         <ImageView
             android:id="@+id/redPlayer1"
             android:layout_width="24dp"
@@ -167,19 +171,20 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="7dp"
-            android:layout_marginBottom="103dp"
-            android:src="@drawable/red_circle_round_3d_button_1" />
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
+            android:src="@drawable/redgolcoin" />
 
         <ImageView
             android:id="@+id/redPlayer2"
             android:layout_width="24dp"
             android:layout_height="30dp"
-            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
-            android:layout_marginTop="48dp"
-            android:layout_marginEnd="71dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
@@ -190,104 +195,106 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="33dp"
-            android:layout_marginBottom="132dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer4"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="33dp"
-            android:layout_marginBottom="63dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer5"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="46dp"
-            android:layout_marginBottom="17dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer6"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="88dp"
-            android:layout_marginBottom="150dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer7"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="63dp"
-            android:layout_marginBottom="99dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer8"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="86dp"
-            android:layout_marginBottom="54dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer9"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="135dp"
-            android:layout_marginBottom="102dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer10"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="132dp"
-            android:layout_marginBottom="182dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
 
         <ImageView
             android:id="@+id/redPlayer11"
-            android:layout_width="16dp"
-            android:layout_height="18dp"
+            android:layout_width="24dp"
+            android:layout_height="30dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="50dp"
-            android:layout_marginEnd="127dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="483dp"
+            android:layout_marginBottom="217dp"
             android:src="@drawable/red_circle_round_3d_button_1" />
+
+
     </RelativeLayout>
 </RelativeLayout>

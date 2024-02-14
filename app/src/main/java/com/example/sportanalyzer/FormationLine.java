@@ -33,7 +33,7 @@ public class FormationLine {
             this.bitmap = bitmap;
 
             if (bitmap != null) {
-                boundary = new RectF(x, y, x + bitmap.getWidth() , y + bitmap.getHeight() );
+                boundary = new RectF(x, y, x + bitmap.getWidth()-50 , y + bitmap.getHeight()-50 );
             } else {
                 boundary = new RectF();
             }
