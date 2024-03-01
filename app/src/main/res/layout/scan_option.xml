@@ -18,7 +18,7 @@
 
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/frontscan"
+                android:src="@drawable/frontscan1"
                 app:tint="#F8F3F8"/>
 
             <ImageView
@@ -26,7 +26,7 @@
 
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/backscan"
+                android:src="@drawable/backscan1"
                 app:tint="#F8F3F8" />
 
             <ImageView
@@ -34,7 +34,7 @@
 
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/downscan"
+                android:src="@drawable/topscan1"
                 app:tint="#F8F3F8" />
 
             <ImageView
@@ -42,7 +42,7 @@
 
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@drawable/topscan"
+                android:src="@drawable/downscan1"
                 app:tint="#F8F3F8"/>
 
         </LinearLayout>

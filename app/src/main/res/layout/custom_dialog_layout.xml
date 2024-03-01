@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:elevation="8dp"
+    android:layout_margin="16dp">
+
+    <!-- Add your custom dialog content here -->
+
+    <TextView
+        android:id="@+id/tvDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Option"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnPickFromStorage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pick from Mobile Storage"
+        android:background="@color/keppelgreen"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/btnPickPreviousVideo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pick from Previous Videos"
+        android:background="@color/keppelgreen"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>
+
+
+

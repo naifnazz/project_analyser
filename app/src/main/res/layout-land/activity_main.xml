@@ -48,9 +48,7 @@
             android:layout_height="75dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/buttonColor"
-            android:paddingLeft="10dp"
-            android:text="Analysis"
+            android:background="@drawable/adbt1"            android:paddingLeft="10dp"
             android:textColor="#17242a"
             android:textStyle="bold" />
 
@@ -60,8 +58,8 @@
             android:layout_height="75dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/buttonColor"
-            android:text="Tactic Board"
+            android:background="@drawable/adbt2"
+
             android:textColor="#17242a"
             android:textStyle="bold" />
 
@@ -71,8 +69,7 @@
             android:layout_height="75dp"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/buttonColor"
-            android:text="About"
+            android:background="@drawable/adbt3"
             android:textColor="#17242a"
             android:textStyle="bold" />
 

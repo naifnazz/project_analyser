@@ -35,11 +35,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
@@ -47,6 +51,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -80,7 +85,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     FormationArrow formationArrowInstance;
     FormateText formateTextInstance;
     ImageView undo;
-
+    ImageView tool;
     private SeekBar seekBar;
     private Handler handler;
     ImageView playBtn, drawBtn, drawSaveBtn;
@@ -94,7 +99,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     private LinearLayout editextlayout;
     private EditText editText;
     private ImageView edittextokbtn;
-
+    ScrollView toolsScrollView;
     int DRAW_TOOL_OPTION = -1;
     int DRAW_HOLOGRAM = 2000;
     int DRAW_FORMATION_LINE = 2001;
@@ -117,14 +122,15 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
     Canvas canvasMain;
 
 
-
+    private boolean isReduced = false;
 
 
     public VideoPlayerActivity() {
     }
 
+    TextView timeLineTextView;
 
-    @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
+    @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility", "SuspiciousIndentation"})
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +142,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         videoSurfaceView = findViewById(R.id.videosurfaceview);
         graphicsSurfaceView = findViewById(R.id.graphicssurfaceview);
         playBtn = findViewById(R.id.playbtn);
-        toolsLayout = findViewById(R.id.toolslayout);
+        //toolsLayout = findViewById(R.id.toolslayout);
         drawBtn = findViewById(R.id.drawframebtn);
         topBarLayout = findViewById(R.id.topbar);
         drawSaveBtn = findViewById(R.id.drawsave);
@@ -147,6 +153,25 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         markerMain = findViewById(R.id.marker_main);
         formationscan = findViewById(R.id.formation_scan);
         formationSpace = findViewById(R.id.formationspace);
+        timeLineTextView=findViewById(R.id.timelinetextview);
+
+        toolsScrollView = findViewById(R.id.toolsScrollView);
+        toolsScrollView.setVisibility(GONE);
+        tool = findViewById(R.id.tool);
+        tool.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (toolsLayout.getVisibility() == View.VISIBLE) {
+                    toolsLayout.setVisibility(View.GONE);
+
+
+                } else {
+                    toolsLayout.setVisibility(View.VISIBLE);
+
+                }
+            }
+        });
+
 
         undo = findViewById(R.id.undo);
 
@@ -340,6 +365,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         formationArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                undo.setVisibility(VISIBLE);
                 if (!isdrawingMode)
                     return;
                 if (DRAW_TOOL == DRAW_ARROW) {
@@ -721,6 +747,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         formationArrow.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+
                 Dialog dialog = new Dialog(VideoPlayerActivity.this);
                 WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
                 int[] location = new int[2];
@@ -746,6 +773,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
 // Set click listeners
                 defaultArrow.setOnClickListener(v1 -> {
+
                     DRAW_TOOL = DRAW_ARROW;
                     DRAW_TOOL_OPTION = DRAW_OPTION_DEFAULT_ARROW;
                     Log.i("test", "defaukt arrow");
@@ -793,58 +821,73 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
 
         playBtn.setOnClickListener(v -> {
-
-
             if (!isplaying) {
                 if (mediaPlayer != null) {
                     mediaPlayer.start();
                     if (counter != null) {
-                        counter.start();
-                        Log.i("test", "counter starting");
-
+                        if (counter.isPaused()) {
+                            counter.resume();
+                        } else {
+                            counter.start();
+                            Log.i("test", "counter starting");
+                        }
                     }
-
-
                     playBtn.setImageResource(R.drawable.pause_circle);
                     isplaying = true;
                 }
-
             } else {
-                if (mediaPlayer != null) {
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     currentFrameMilli = mediaPlayer.getCurrentPosition();
+                    mediaPlayer.seekTo((int) currentFrameMilli);
                     mediaPlayer.pause();
                     if (counter != null) {
                         counter.pause();
-
                     }
-
                     playBtn.setImageResource(R.drawable.play_circle);
                     isplaying = false;
                 }
             }
+            updateSeekBar();
+            updateSeekBarWithDelay(); // Call this method after play/pause
         });
+// Function to update SeekBar after a short delay
 
-        // Other initialization...
 
+
+
+        undo.setVisibility(GONE);
+        tool.setVisibility(GONE);
+        //topBarLayout.setVisibility(GONE);
+        toolsScrollView.setVisibility(VISIBLE);
+
+        topBarLayout.setVisibility(GONE);
+
+
+        //CardView circluarProgress = findViewById(R.id.progress_circular);
 
         drawBtn.setOnClickListener(v -> {
+
             if (!isdrawingMode) {
                 if (mediaPlayer != null) {
                     currentFrameMilli = mediaPlayer.getCurrentPosition();
                     mediaPlayer.pause();
+                    if(counter.isCounting())
+                        counter.pause();
 
                     graphicsSurfaceView.setVisibility(View.VISIBLE);
                     seekbarLayout.setVisibility(View.GONE);
                     topBarLayout.setVisibility(GONE);
                     playBtn.setVisibility(View.GONE);
                     drawBtn.setVisibility(View.GONE);
-                    toolsLayout.setBackground(new ColorDrawable(Color.TRANSPARENT));
+                    //  toolsLayout.setBackground(new ColorDrawable(Color.TRANSPARENT));
                     drawSaveBtn.setVisibility(View.VISIBLE);
-                    DRAW_TOOL=-1;
+                    undo.setVisibility(GONE);
+                    tool.setVisibility(GONE);
+                    toolsScrollView.setVisibility(VISIBLE);
+                    DRAW_TOOL = -1;
 
                     Bitmap bitmap = extractFrameAndStoreSequence(videoUri, currentFrameMilli);
                     addlistner(bitmap);
-
 
 
                 }
@@ -853,52 +896,56 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
         });
 
 //tick save******************************************************
-        drawSaveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                editextlayout.setVisibility(GONE);
-                graphicsSurfaceView.setVisibility(GONE);
-
-                mediaPlayer.release();
-                mediaPlayer = null;
-                mediaPlayer = new MediaPlayer();
-
-                try {
-                    mediaPlayer.setDataSource(getApplicationContext(), videoUri);
-                    mediaPlayer.setDisplay(videoSurfaceView.getHolder());
-                    mediaPlayer.prepare();
-                    mediaPlayer.seekTo((int) currentFrameMilli);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                hologramDraw = null;
-                formationMarker = null;
-                formationLineInstance = null;
-                formationAreaInstance = null;
-                formationArrowInstance = null;
-                formationSpaceInstance = null;
-
-                DRAW_TOOL = -1;
-                formationArrow.setBackgroundTintList(null);
-                formationArea.setBackgroundTintList(null);
-                formationLine.setBackgroundTintList(null);
-                formationText.setBackgroundTintList(null);
-                spotlightMain.setBackgroundTintList(null);
-                markerMain.setBackgroundTintList(null);
-                formationSpace.setBackgroundTintList(null);
-                formationscan.setBackgroundTintList(null);
+        drawSaveBtn.setOnClickListener(v -> {
 
 
-                seekbarLayout.setVisibility(VISIBLE);
-                topBarLayout.setVisibility(VISIBLE);
-                playBtn.setVisibility(VISIBLE);
-                drawBtn.setVisibility(VISIBLE);
-                drawSaveBtn.setVisibility(GONE);
-                isdrawingMode = false;
+
+            editextlayout.setVisibility(GONE);
+            graphicsSurfaceView.setVisibility(GONE);
+
+
+            mediaPlayer.release();
+            mediaPlayer = null;
+            mediaPlayer = new MediaPlayer();
+
+            try {
+                mediaPlayer.setDataSource(getApplicationContext(), videoUri);
+                mediaPlayer.setDisplay(videoSurfaceView.getHolder());
+                mediaPlayer.prepare();
+                mediaPlayer.seekTo((int) currentFrameMilli);
+
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
+            hologramDraw = null;
+            formationMarker = null;
+            formationLineInstance = null;
+            formationAreaInstance = null;
+            formationArrowInstance = null;
+            formationSpaceInstance = null;
+
+            DRAW_TOOL = -1;
+            formationArrow.setBackgroundTintList(null);
+            formationArea.setBackgroundTintList(null);
+            formationLine.setBackgroundTintList(null);
+            formationText.setBackgroundTintList(null);
+            spotlightMain.setBackgroundTintList(null);
+            markerMain.setBackgroundTintList(null);
+            formationSpace.setBackgroundTintList(null);
+            formationscan.setBackgroundTintList(null);
+
+
+            seekbarLayout.setVisibility(VISIBLE);
+            topBarLayout.setVisibility(GONE);
+
+            playBtn.setVisibility(VISIBLE);
+            drawBtn.setVisibility(VISIBLE);
+            drawSaveBtn.setVisibility(GONE);
+            undo.setVisibility(GONE);
+            tool.setVisibility(GONE);
+            toolsScrollView.setVisibility(VISIBLE);
+            isdrawingMode = false;
         });
 
         mediaPlayer = new MediaPlayer();
@@ -916,12 +963,20 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
         seekBar.setMax(mediaPlayer.getDuration());
         seekBar.setProgress(0);
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser)
+                if (fromUser) {
                     seekTo(progress);
-
+                } else {
+                    // This block will only execute when the progress changes due to user interaction
+                    long seconds = progress / 1000;
+                    long minute = seconds / 60;
+                    seconds = seconds % 60;
+                    String time = String.format("%d:%02d", minute, seconds); // Use %02d for two digits in seconds
+                    timeLineTextView.setText(time);
+                }
             }
 
             @Override
@@ -935,16 +990,36 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             }
         });
 
+
         handler = new Handler(Looper.getMainLooper());
 
 
     }
 
+    private void updateSeekBar() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            int current = mediaPlayer.getCurrentPosition();
+            seekBar.setProgress(current);
+            //updateTimelineTextView(current);
+            currentFrameMilli = current; // Update currentFrameMilli with exact SeekBar position
+        }
+    }
+
+    // Function to update SeekBar with a delay
+    private void updateSeekBarWithDelay() {
+        new Handler().postDelayed(() -> {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                int current = mediaPlayer.getCurrentPosition();
+                seekBar.setProgress(current);
+               // updateTimelineTextView(current);
+            }
+        }, 100); // Adjust the delay according to your needs
+    }
 
     //frame ectract****************************************************************************
     long currentFrameMilli;
 
-    private Bitmap extractFrameAndStoreSequence(Uri videoUri, long timeInMillis) {
+    private Bitmap extractFrameAndStoreSequence(Uri videoUri, long currentFrameMilli) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         ArrayList<Bitmap> sequenceArray = new ArrayList<>();
         long frameTime = 0;
@@ -954,7 +1029,7 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
             retriever.setDataSource(this, videoUri);
 
             // Get the frame at the specified time
-            frameTime = timeInMillis * 1000;
+            frameTime = currentFrameMilli * 1000;
             Bitmap firstFrame = retriever.getFrameAtTime(frameTime, MediaMetadataRetriever.OPTION_PREVIOUS_SYNC);
             sequenceArray.add(firstFrame);
 
@@ -995,6 +1070,9 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
             if (!issurfaceInit) {
                 mediaPlayer.setDisplay(holder);
+                Log.i("test", mediaPlayer.getVideoWidth() + "  " + mediaPlayer.getVideoHeight() + " " + videoSurfaceView.getWidth() + " " + videoSurfaceView.getHeight());
+
+
                 issurfaceInit = true;
             }
 
@@ -1113,8 +1191,13 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                                             hologramBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
-
-
+                                        hologramDraw.setFormationScan(formationScan);
+                                        hologramDraw.setFormationArrow(formationArrowInstance);
+                                        hologramDraw.setFormateText(formateTextInstance);
+                                        hologramDraw.setFormationSpace(formationSpaceInstance);
+                                        hologramDraw.setFormationArea(formationAreaInstance);
+                                        hologramDraw.setFormationLine(formationLineInstance);
+                                        hologramDraw.setFormationMarker(formationMarker);
                                         hologramDraw.drawIfNotOverlaying(canvas, x, y, hologramBitmap);
                                         graphicsHolder.unlockCanvasAndPost(canvas);
                                         canvasMain = canvas;
@@ -1130,34 +1213,39 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                                         Bitmap markerBitmap = null;
                                         if (DRAW_TOOL_OPTION == DRAW_MARKER_DEFAULT) {
                                             Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
-                                            int newWidth = 200;  // Replace with your desired width
-                                            int newHeight = 250; // Replace with your desired height
+                                            int newWidth = 100;  // Replace with your desired width
+                                            int newHeight = 100; // Replace with your desired height
                                             markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
                                         if (DRAW_TOOL_OPTION == DRAW_MARKER_ROUND) {
                                             Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.roundmarker, new BitmapFactory.Options());
-                                            int newWidth = 200;  // Replace with your desired width
-                                            int newHeight = 300; // Replace with your desired height
+                                            int newWidth = 100;  // Replace with your desired width
+                                            int newHeight = 100; // Replace with your desired height
                                             markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
                                         if (DRAW_TOOL_OPTION == DRAW_MARKER_CROSS) {
                                             Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.crossmarker, new BitmapFactory.Options());
-                                            int newWidth = 200;  // Replace with your desired width
-                                            int newHeight = 250; // Replace with your desired height
+                                            int newWidth = 100;  // Replace with your desired width
+                                            int newHeight = 100; // Replace with your desired height
                                             markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
                                         if (DRAW_TOOL_OPTION == DRAW_MARKER_CURCLE) {
                                             Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.curclemarker, new BitmapFactory.Options());
-                                            int newWidth = 150;  // Replace with your desired width
-                                            int newHeight = 250; // Replace with your desired height
+                                            int newWidth = 100;  // Replace with your desired width
+                                            int newHeight = 100; // Replace with your desired height
                                             markerBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
-
-
+                                        formationMarker.setFormationScan(formationScan);
+                                        formationMarker.setFormationArrow(formationArrowInstance);
+                                        formationMarker.setFormateText(formateTextInstance);
+                                        formationMarker.setFormationSpace(formationSpaceInstance);
+                                        formationMarker.setFormationArea(formationAreaInstance);
+                                        formationMarker.setFormationLine(formationLineInstance);
+                                        formationMarker.setHologramDraw(hologramDraw);
                                         formationMarker.drawIfNotOverlaying(canvas, x, y, markerBitmap);
                                         graphicsHolder.unlockCanvasAndPost(canvas);
                                         canvasMain = canvas;
@@ -1174,35 +1262,41 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                                         canvas.drawBitmap(bitmap, srcRect, destRect, null);
                                         Bitmap scanBitmap = null;
                                         if (DRAW_TOOL_OPTION == DRAW_SCAN_DEFAULT) {
-                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.topscan, new BitmapFactory.Options());
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.frontscan1, new BitmapFactory.Options());
                                             int newWidth = 200;  // Replace with your desired width
-                                            int newHeight = 250; // Replace with your desired height
+                                            int newHeight = 300; // Replace with your desired height
                                             scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
                                         if (DRAW_TOOL_OPTION == DRAW_SCAN_BACK) {
-                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.backscan, new BitmapFactory.Options());
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.backscan1, new BitmapFactory.Options());
                                             int newWidth = 200;  // Replace with your desired width
                                             int newHeight = 300; // Replace with your desired height
                                             scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
                                         if (DRAW_TOOL_OPTION == DRAW_SCAN_FRONT) {
-                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.frontscan, new BitmapFactory.Options());
-                                            int newWidth = 200;  // Replace with your desired width
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.topscan1, new BitmapFactory.Options());
+                                            int newWidth = 300;  // Replace with your desired width
                                             int newHeight = 250; // Replace with your desired height
                                             scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
                                         if (DRAW_TOOL_OPTION == DRAW_SCAN_DOWN) {
-                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.downscan, new BitmapFactory.Options());
-                                            int newWidth = 150;  // Replace with your desired width
+                                            Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.downscan1, new BitmapFactory.Options());
+                                            int newWidth = 300;  // Replace with your desired width
                                             int newHeight = 250; // Replace with your desired height
                                             scanBitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
                                         }
 
-
+                                        formationScan.setFormationLine(formationLineInstance);
+                                        formationScan.setFormationArrow(formationArrowInstance);
+                                        formationScan.setFormateText(formateTextInstance);
+                                        formationScan.setFormationSpace(formationSpaceInstance);
+                                        formationScan.setFormationArea(formationAreaInstance);
+                                        formationScan.setFormationMarker(formationMarker);
+                                        formationScan.setHologramDraw(hologramDraw);
                                         formationScan.drawIfNotOverlaying(canvas, x, y, scanBitmap);
                                         graphicsHolder.unlockCanvasAndPost(canvas);
                                         canvasMain = canvas;
@@ -1221,13 +1315,18 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
                                             canvas.drawBitmap(bitmap, srcRect, destRect, null);
                                             Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
-                                            int newWidth = 150;  // Replace with your desired width
-                                            int newHeight = 150; // Replace with your desired height
+                                            int newWidth = 100;  // Replace with your desired width
+                                            int newHeight = 100; // Replace with your desired height
 
 
                                             Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
-
+                                            formationLineInstance.setHologramDraw(hologramDraw);
+                                            formationLineInstance.setFormationArrow(formationArrowInstance);
+                                            formationLineInstance.setFormateText(formateTextInstance);
+                                            formationLineInstance.setFormationArea(formationAreaInstance);
+                                            formationLineInstance.setFormationMarker(formationMarker);
+                                            formationLineInstance.setFormationScan(formationScan);
+                                            formationLineInstance.setFormationSpace(formationSpaceInstance);
                                             formationLineInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
                                             graphicsHolder.unlockCanvasAndPost(canvas);
                                         }
@@ -1241,13 +1340,20 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
                                             canvas.drawBitmap(bitmap, srcRect, destRect, null);
                                             Bitmap default_bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.formation_line_marker, new BitmapFactory.Options());
-                                            int newWidth = 150;  // Replace with your desired width
-                                            int newHeight = 150; // Replace with your desired height
+                                            int newWidth = 100;  // Replace with your desired width
+                                            int newHeight = 100; // Replace with your desired height
 
 
                                             Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
 
 
+                                            formationAreaInstance.setFormationSpace(formationSpaceInstance);
+                                            formationAreaInstance.setFormateText(formateTextInstance);
+                                            formationAreaInstance.setFormationArrow(formationArrowInstance);
+                                            formationAreaInstance.setFormationLine(formationLineInstance);
+                                            formationAreaInstance.setFormationMarker(formationMarker);
+                                            formationAreaInstance.setFormationScan(formationScan);
+                                            formationAreaInstance.setHologramDraw(hologramDraw);
                                             formationAreaInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
                                             graphicsHolder.unlockCanvasAndPost(canvas);
                                         }
@@ -1266,9 +1372,17 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
 
                                             Bitmap pointbitmap = Bitmap.createScaledBitmap(default_bitmap, newWidth, newHeight, true);
-
+                                            formationSpaceInstance.setHologramDraw(hologramDraw);
+                                            formationSpaceInstance.setFormationArrow(formationArrowInstance);
+                                            formationSpaceInstance.setFormateText(formateTextInstance);
+                                            formationSpaceInstance.setFormationArea(formationAreaInstance);
+                                            formationSpaceInstance.setFormationLine(formationLineInstance);
+                                            formationSpaceInstance.setFormationMarker(formationMarker);
+                                            formationSpaceInstance.setFormationScan(formationScan);
 
                                             formationSpaceInstance.drawIfNotOverlaying(canvas, x, y, pointbitmap);
+
+
                                             graphicsHolder.unlockCanvasAndPost(canvas);
                                         }
 
@@ -1278,14 +1392,20 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
                                         }
                                         Canvas canvas = graphicsHolder.lockCanvas();
                                         if (canvas != null) {
-
                                             canvas.drawBitmap(bitmap, srcRect, destRect, null);
                                             formationArrowInstance.setARROW_TYPE(DRAW_TOOL_OPTION);
+
+                                            formationArrowInstance.setHologramDraw(hologramDraw);
+                                            formationArrowInstance.setFormateText(formateTextInstance);
+                                            //formationArrowInstance.setFormationArea(formationAreaInstance);
+                                            //formationArrowInstance.setFormationLine(formationLineInstance);
+                                            formationArrowInstance.setFormationMarker(formationMarker);
+                                            //formationArrowInstance.setFormationScan(formationScan);
+                                            formationArrowInstance.setFormationSpace(formationSpaceInstance);
 
                                             formationArrowInstance.drawArrow(canvas, x, y);
                                             graphicsHolder.unlockCanvasAndPost(canvas);
                                         }
-
                                     } else if (DRAW_TOOL == DRAW_TEXT) {
                                         if (formateTextInstance == null) {
                                             formateTextInstance = new FormateText();
@@ -1301,7 +1421,13 @@ public class VideoPlayerActivity extends AppCompatActivity implements SurfaceHol
 
 
                                             String main = "  " + text + "  ";
-
+                                            formateTextInstance.setHologramDraw(hologramDraw);
+                                            formateTextInstance.setFormationArrow(formationArrowInstance);
+                                            formateTextInstance.setFormationArea(formationAreaInstance);
+                                            formateTextInstance.setFormationLine(formationLineInstance);
+                                            formateTextInstance.setFormationMarker(formationMarker);
+                                            formateTextInstance.setFormationScan(formationScan);
+                                            formateTextInstance.setFormationSpace(formationSpaceInstance);
                                             formateTextInstance.drawText(canvas, main, x, y);
                                             graphicsHolder.unlockCanvasAndPost(canvas);
 

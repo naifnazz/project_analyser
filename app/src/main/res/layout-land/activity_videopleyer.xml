@@ -94,8 +94,10 @@
         android:layout_height="match_parent"
         android:clickable="true"
         android:focusable="true"
+        android:layout_gravity="center"
         android:focusableInTouchMode="true" />
     <SurfaceView
+        android:layout_gravity="center"
         android:visibility="gone"
         android:id="@+id/graphicssurfaceview"
         android:focusable="true"
@@ -103,6 +105,43 @@
         android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <LinearLayout
+        android:id="@+id/seekbarlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+       android:layout_gravity="bottom"
+        android:orientation="horizontal">
+
+<LinearLayout
+    android:layout_margin="1dp"
+    android:layout_width="match_parent"
+    android:gravity="center_vertical"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/timelinetextview"
+        android:layout_width="29dp"
+        android:layout_height="24dp"
+
+        android:layout_margin="2dp"
+        android:text="0:0"
+        android:textColor="@color/black"
+        android:textSize="20dp" />
+    <SeekBar
+
+        android:id="@+id/Seekbr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0" />
+
+</LinearLayout>
+
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_marginBottom="20dp"
@@ -111,15 +150,17 @@
         android:layout_gravity="bottom|end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+
         <ImageView
             android:id="@+id/playbtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/play_circle"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/play_circle" />
+
         <ImageView
             android:id="@+id/drawframebtn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="39dp"
+            android:layout_height="34dp"
             android:scaleType="centerCrop"
             android:src="@drawable/bionocular"
             app:tint="@color/white" />
@@ -127,8 +168,8 @@
     <ImageView
         android:id="@+id/drawsave"
         android:visibility="gone"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="39dp"
+        android:layout_height="34dp"
         android:layout_gravity="end"
          android:layout_margin="10dp"
         android:src="@drawable/done"/>
@@ -151,15 +192,26 @@
             android:layout_height="40dp"
             android:src="@drawable/done"/>
 
+
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/undo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginHorizontal="60dp"
+        android:layout_marginVertical="10dp"
+        android:src="@drawable/baseline_undo_24" />
+
     <ImageView
         android:layout_width="wrap_content"
-        android:id="@+id/undo"
+        android:id="@+id/tool"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="80dp"
-        android:src="@drawable/baseline_undo_24"/>
+        android:layout_marginHorizontal="140dp"
+        android:src="@drawable/tool"/>
     <ImageView
         android:layout_width="0dp"
 
@@ -167,6 +219,21 @@
         android:layout_gravity="bottom|end"
         android:id="@+id/dummyimageview"
         android:layout_height="0dp"/>
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_gravity="center"
+        android:id="@+id/progress_circular"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="6dp">
+
+  <ImageView
+      android:layout_width="100dp"
+
+      android:layout_height="100dp"
+      android:id="@+id/loadinimageview"/>
+
+    </androidx.cardview.widget.CardView>
 
 
 </FrameLayout>
@@ -175,36 +242,23 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/seekbarlayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
 
-            android:orientation="horizontal">
-
-
-            <SeekBar
-                android:id="@+id/Seekbr"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100"
-                android:progress="0" />
-
-        </LinearLayout>
 
 
     </LinearLayout>
 
 
     <ScrollView
+
         android:layout_width="80dp"
+
         android:id="@+id/toolsScrollView"
         android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="80dp"
-        android:id="@+id/toolslayout"
+
+
         android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
 
@@ -320,7 +374,7 @@
                 android:padding="10sp"
                 app:tint="@color/white"
 
-            android:src="@drawable/markerligo" />
+            android:src="@drawable/formation_line_marker" />
 
         </LinearLayout>
         <LinearLayout
@@ -337,7 +391,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:padding="10sp"
-                android:src="@drawable/spacelogo"
+                android:src="@drawable/spaceic"
                 app:tint="@color/white"                />
 
         </LinearLayout>
@@ -352,7 +406,7 @@
             android:padding="3dp">
 
             <ImageView
-                android:src="@drawable/frontscan"
+                android:src="@drawable/frontscan1"
                 app:tint="@color/white"
                 android:layout_width="50dp"
                 android:layout_height="50dp"

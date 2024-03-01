@@ -1,35 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- res/layout/list_item_video.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:padding="16dp">
 
-    <!-- Video thumbnail or any other video content views go here -->
     <ImageView
-        android:id="@+id/imageThumbnail"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:id="@+id/thumbnailImageView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/default_image"/>
+        android:src="@drawable/default_image" />
 
-    <!-- Video title and other details go here -->
-    <LinearLayout
-        android:id="@+id/detailsLayout"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:layout_marginStart="16dp"
-        android:layout_toEndOf="@id/imageThumbnail"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Video Title"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
-
-        <!-- Add more TextViews or other views for additional video details -->
-
-    </LinearLayout>
-</RelativeLayout>
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold"/>
+</LinearLayout>

@@ -1,9 +1,11 @@
 package com.example.sportanalyzer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -20,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 import java.util.Timer;
@@ -83,8 +87,11 @@ public class MainActivity extends AppCompatActivity {
         foottac = findViewById(R.id.foottac);
         importbtn = findViewById(R.id.importbtn);
         webbutton = findViewById(R.id.webbutton);
+
         dbHelper = new DatabaseHelper(this);
+
         importbtn.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 // Display options to pick a video: from storage or from previous videos
@@ -118,23 +125,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showVideoPickerOptions() {
-        // Create an array of options
-        CharSequence[] options = {"Pick from Mobile Storage", "Pick from Previous Videos"};
+        // Inflate the custom layout
+        View view = getLayoutInflater().inflate(R.layout.custom_dialog_layout, null);
 
-        // Create a dialog to display options
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("Select Option");
-        builder.setItems(options, (dialog, item) -> {
-            if (item == 0) {
-                // Pick from mobile storage
-                pickVideoFromStorage();
-            } else if (item == 1) {
-                // Pick from previous videos in the database
-                pickPreviousVideo();
-            }
+        // Find buttons in the custom layout
+        Button btnPickFromStorage = view.findViewById(R.id.btnPickFromStorage);
+        Button btnPickPreviousVideo = view.findViewById(R.id.btnPickPreviousVideo);
+
+        // Set click listeners
+        btnPickFromStorage.setOnClickListener(v -> {
+            showLoadingIndicator();
+            pickVideoFromStorage();
         });
+
+        btnPickPreviousVideo.setOnClickListener(v -> {
+            showLoadingIndicator();
+            pickPreviousVideo();
+        });
+
+        // Create and show AlertDialog with the custom layout
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(view);
+        builder.setTitle("Select Option");
         builder.show();
     }
+    private void showLoadingIndicator() {
+        ImageView loading = findViewById(R.id.loadinimageview);
+        CardView circluarProgress = findViewById(R.id.progress_circular);
+
+        if (loading != null) {
+            loading.setVisibility(View.VISIBLE);
+
+            Glide.with(this)
+                    .asGif()
+                    .load(R.drawable.ld1)
+                    .into(loading);
+
+            // Additional functionality for hiding the loading indicator after a delay
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loading.setVisibility(View.GONE);
+                }
+            }, 4000); // Delay in milliseconds (4 seconds in this example)
+        }
+    }
+
 
     private void pickVideoFromStorage() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
